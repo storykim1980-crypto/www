@@ -1898,10 +1898,20 @@ function applyTheme(){
    출처(2026-08 웹 조사 교차검증): SlotCatalog, roulette77, livecasinocomparer,
    lightning-roulette-play.net, effortlessmath 등 — 공식 RTP/배당 구조 일치 확인.
    분포는 커뮤니티 관측(50/100× ≈80% 룰) + RTP 정합 역산으로 추정한 근사치. */
+/* ════════ 16. 외부 스펙 & 시간대 기대치 분석표 (⑫) ════════
+   출처(2026-08 웹 조사 교차검증): SlotCatalog, roulette77, livecasinocomparer,
+   lightning-roulette-play.net, effortlessmath 등 — 공식 RTP/배당 구조 일치 확인.
+   ★ 2026-08 티어 재확인: 변경 없음 (2022년 출시 스펙 그대로)
+     · 기본 라이트닝: 50~500× (50 간격 9종) — 번호 1~5개 → Chain 최대 10개
+     · Double Strike(레드 라이트닝): 기존 배수를 600~2000× (100 간격)으로 승격
+   분포 확률은 "관측 80% 룰 + 공식 RTP 정합 역산" 추정치 (공식 확률표 비공개) */
 const EXT500 ={avgNums:3, tiers:[50,100,200,300,400,500],
-  probs:[0.57,0.27,0.07,0.04,0.03,0.02]};                                   // 합계 1.00
-const EXT2000={avgNums:5, tiers:[50,100,200,300,500,700,1000,1500,2000],
-  probs:[0.52,0.28,0.085,0.05,0.032,0.015,0.008,0.0055,0.0045]};             // 합계 1.00
+  probs:[0.434,0.44,0.052,0.034,0.024,0.016]};            // 합 1.00 · E[m]≈104 → 함의 RTP 97.28% (공식 97.10~97.30 정합)
+const EXT2000={avgNums:5,
+  tiers:[50,100,150,200,250,300,350,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000],
+  probs:[0.592,0.132,0.074,0.053,0.037,0.028,0.019,0.018,0.017,
+         0.0040,0.0036,0.0032,0.0028,0.0026,0.0022,0.0019,0.0016,0.0013,0.0012,0.0010,0.0008,0.0006,0.0005,0.0027]};
+  // 합 1.00 · E[m]≈137.9 → 함의 RTP ≈97.13% (공식 97.10 정합, 평균 번호 5개 가정)
 /** 게임 키 → 분포 정의 */
 function extDef(key){ return key==='ex2000'?EXT2000:EXT500; }
 /** 표2 (분포 추정표) — 500배판/2000배판 배수 집합을 병합해 정적 렌더 */
@@ -1954,6 +1964,12 @@ function runExtCalc(){
       row(m.toLocaleString('ko-KR')+'배 이상 적중', r.toFixed(2)+'회', per); };
     gte(100); gte(200); gte(300); gte(500);
     if (key==='ex2000'){ gte(700); gte(1000); gte(2000); }
+    // ── 단독 배수(정확히 그 배수) 적중 기대 — "몇 시간에 한 번 나오나" 직답용
+    const exact=(m)=>{ const i=def.tiers.indexOf(m); if(i<0) return;
+      const r=spins*(avgN/37)*def.probs[i]; if(r<=0) return;
+      row('정확히 '+m.toLocaleString('ko-KR')+'배', r.toFixed(3)+'회', '≈ '+fmtN(Math.round(spins/r))+'스핀마다 (평균 '+(hours/r).toFixed(1)+'시간에 1회)'); };
+    exact(500);
+    if (key==='ex2000'){ exact(700); exact(1000); exact(1500); exact(2000); }
     tb.appendChild(body); out.appendChild(tb);
     // 🧭 시간대 판정 카드 — 정직 고지 (수학적으로 시간대 무관)
     const note=h('div','scard');
