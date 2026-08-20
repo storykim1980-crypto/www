@@ -1894,6 +1894,79 @@ function applyTheme(){
   $('btnTheme').textContent = state.settings.theme==='dark' ? '🌙' : '☀️';
 }
 
+/* ════════ 16. 외부 스펙 & 시간대 기대치 분석표 (⑫) ════════
+   출처(2026-08 웹 조사 교차검증): SlotCatalog, roulette77, livecasinocomparer,
+   lightning-roulette-play.net, effortlessmath 등 — 공식 RTP/배당 구조 일치 확인.
+   분포는 커뮤니티 관측(50/100× ≈80% 룰) + RTP 정합 역산으로 추정한 근사치. */
+const EXT500 ={avgNums:3, tiers:[50,100,200,300,400,500],
+  probs:[0.57,0.27,0.07,0.04,0.03,0.02]};                                   // 합계 1.00
+const EXT2000={avgNums:5, tiers:[50,100,200,300,500,700,1000,1500,2000],
+  probs:[0.52,0.28,0.085,0.05,0.032,0.015,0.008,0.0055,0.0045]};             // 합계 1.00
+/** 게임 키 → 분포 정의 */
+function extDef(key){ return key==='ex2000'?EXT2000:EXT500; }
+/** 표2 (분포 추정표) — 500배판/2000배판 배수 집합을 병합해 정적 렌더 */
+function renderExtDist(){
+  const tb=$('extDistTable'); if(!tb) return;
+  const body=tb.querySelector('tbody'); body.textContent='';
+  const tiers=Array.from(new Set([...EXT500.tiers,...EXT2000.tiers])).sort((a,b)=>a-b);
+  tiers.forEach(t=>{
+    const i5=EXT500.tiers.indexOf(t), i2=EXT2000.tiers.indexOf(t);
+    const tr=h('tr');
+    const c1=h('td'); c1.textContent=t.toLocaleString('ko-KR')+'×';
+    const c2=h('td'); c2.textContent=i5>=0?(EXT500.probs[i5]*100).toFixed(2)+'%':'—';
+    const c3=h('td'); c3.textContent=i2>=0?(EXT2000.probs[i2]*100).toFixed(2)+'%':'—';
+    tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); body.appendChild(tr);
+  });
+}
+/** 스핀 1회당 "당첨번호에 m배 이상 배수 적중" 기대 횟수 = (평균번호수/37) × P(배수≥m) */
+function extHitRate(def, avgN, minM){
+  const share=def.tiers.reduce((a,t,i)=> t>=minM ? a+def.probs[i] : a, 0);
+  return (avgN/37)*share;
+}
+/** 표3 — 윈도우 기대치 계산 실행 */
+function runExtCalc(){
+  try{
+    const key=$('extGame').value==='ex2000'?'ex2000':'lt500';
+    const def=extDef(key);
+    const hours=clampInt($('extWindow').value,1,24,3);
+    const optSel=$('extWindow').selectedOptions[0];
+    const label=(optSel && optSel.getAttribute('data-label'))||'';
+    const perSec=clampInt($('extInt').value,10,120,20);
+    const avgN=Math.min(10, Math.max(1, parseFloat($('extAvg').value)||def.avgNums));
+    const spins=Math.floor(hours*3600/perSec);
+    const out=$('extOut'); out.textContent='';
+    out.appendChild(h('h3','sub-title','결과 — 미국 ET '+label+' · '+hours+'시간 · '+perSec+'초/스핀 → 약 '+fmtN(spins)+'스핀'));
+    const tb=h('table','tbl tight');
+    const hd=h('thead'); const hr=h('tr');
+    ['지표','기대 횟수','환산 (평균 간격)'].forEach(t=>hr.appendChild(h('th','',t)));
+    hd.appendChild(hr); tb.appendChild(hd);
+    const body=h('tbody');
+    const row=(name,v,per)=>{ const tr=h('tr');
+      const a=h('td'); a.textContent=name; const b=h('td'); b.textContent=v;
+      const c=h('td'); c.className='dim'; c.textContent=per;
+      tr.appendChild(a); tr.appendChild(b); tr.appendChild(c); body.appendChild(tr); };
+    row('총 스핀 수', fmtN(spins)+'회', perSec+'초 간격 기준');
+    row('배수 부착 횟수 (모든 번호)', fmtN(Math.round(spins*avgN))+'회', '스핀당 평균 '+avgN+'개 부착');
+    const hit=spins*avgN/37;
+    row('배수가 "당첨 번호"에 적중', hit.toFixed(1)+'회', '≈ '+(1/(avgN/37)).toFixed(1)+'스핀에 1회');
+    const gte=(m)=>{ const r=spins*extHitRate(def,avgN,m);
+      const per=r>0.005? '≈ '+fmtN(Math.round(spins/r))+'스핀에 1회 (약 '+(hours*3600/(spins/r)/3600).toFixed(1)+'시간마다)':'거의 无';
+      row(m.toLocaleString('ko-KR')+'배 이상 적중', r.toFixed(2)+'회', per); };
+    gte(100); gte(200); gte(300); gte(500);
+    if (key==='ex2000'){ gte(700); gte(1000); gte(2000); }
+    tb.appendChild(body); out.appendChild(tb);
+    // 🧭 시간대 판정 카드 — 정직 고지 (수학적으로 시간대 무관)
+    const note=h('div','scard');
+    note.appendChild(h('h4','','⏱️ 시간대 판정'));
+    const p=h('div','ratio-leg');
+    p.textContent='이 기대치는 21:00~24:00이든 03:00~06:00이든 완전히 동일합니다. 인증 RNG(외부 감사)는 시간·요일·이벤트 정보를 입력받지 않으므로 "어느 시간대가 고배수가 잘 나온다"는 설계는 존재하지 않습니다. 관측된 시간대 차이는 대부분 분산(노이즈)이며, 진짜 신호인지는 ⑨ ⏱️ 심야 가설 통계 검정에 실측 데이터를 넣어 판별하세요. 유튜브 빅윈 모음은 패배 라운드가 편집된 생존자 편향 표본이라 시간대 증거가 될 수 없습니다.';
+    p.style.whiteSpace='normal';
+    note.appendChild(p);
+    out.appendChild(note);
+    toast('윈도우 기대치 계산 완료','ok');
+  }catch(e){ toast('계산 오류: '+e.message,'err'); }
+}
+
 /* ════════ 15. 낳기/가져오기/키보드/초기화 ════════ */
 function doExport(){
   try{
@@ -2157,6 +2230,10 @@ function init(){
   $('vtFill').addEventListener('click', vtFillFreqs);
   $('vtScenario').addEventListener('click', runVtScenario);
   $('vtPrimeTest').addEventListener('click', runVtPrimeTest);
+  // ── ⑫ 외부 스펙 & 시간대 기대치 분석표
+  renderExtDist();
+  $('btnExt').addEventListener('click', runExtCalc);
+  $('extGame').addEventListener('change', ()=>{ $('extAvg').value=extDef($('extGame').value).avgNums; }); // 게임별 평균 번호 수 기본값 자동 반영
   $('vtReset').addEventListener('click',()=>{
     state.vtier=vtDefaults(); renderVTFreqGrid();
     $('vtBank').value=state.vtier.bank; $('vtUnit').value=state.vtier.unit;
