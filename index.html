@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<!-- ============================================================
+  R-스테이션 (Roulette Pattern Station)
+  - 유럽식 룰렛(싱글제로) 패턴 분석 + 배팅 전략 시뮬레이터
+  - Pure Client-Side : index.html 더블클릭만으로 실행
+  - 의존성 0, 오프라인 100%, localStorage 저장
+============================================================ -->
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- [FIXED] viewport-fit=cover: iOS 노치 영역까지 렌더링 → safe-area env()가 실제 값을 갖도록 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="유럽식 룰렛 결과 기록, 패턴 통계, 배팅 전략 시뮬레이션 오프라인 분석 도구">
+<title>R-스테이션 · 룰렛 패턴 분석기</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+
+<!-- ══════════════ 상단 고정 헤더 ══════════════ -->
+<header class="app-header">
+  <div class="brand">
+    <span class="brand-ico" aria-hidden="true">🎡</span>
+    <div class="brand-txt">
+      <strong>R-스테이션</strong>
+      <small>유럽식 룰렛 패턴 분석기</small>
+    </div>
+  </div>
+  <nav class="hdr-actions" aria-label="앱 기능">
+    <button id="btnTheme"    class="hbtn" type="button" aria-label="테마 전환">🌙</button>
+    <button id="btnSettings" class="hbtn" type="button" aria-label="설정">⚙️</button>
+    <button id="btnExport"   class="hbtn" type="button" aria-label="데이터 낳기(JSON 백업)">⬇️</button>
+    <button id="btnImport"   class="hbtn" type="button" aria-label="데이터 가져오기(JSON 복원)">⬆️</button>
+    <input type="file" id="fileImport" accept=".json,application/json" hidden>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- ══════════ ① 스핀 기록 ══════════ -->
+  <section id="secInput" class="card">
+    <h2 class="sec-title"><span class="badge">①</span> 스핀 기록</h2>
+
+    <div class="mode-row">
+      <button id="btnMultMode" class="chip-btn" type="button" aria-pressed="false">⚡ 배수 입력 모드: <b>OFF</b></button>
+      <button id="btnUndo" class="chip-btn warn" type="button">↩️ 마지막 기록 취소</button>
+      <span id="kbBuf" class="kb-buf" title="키보드로 숫자 입력 후 Enter">키보드: —</span>
+    </div>
+
+    <div class="mode-row">
+      <span class="mult-label">🎩 딜러:</span>
+      <input id="dealerName" class="inp mini" maxlength="12" placeholder="이름 입력 → 지정" aria-label="현재 딜러 이름">
+      <button id="btnDealerSet" class="chip-btn" type="button">지정</button>
+      <div id="dealerChips" class="chip-area"></div>
+    </div>
+
+    <!-- 🎯 실전 P/L 트래커: 목표 수익/손절/판수 알림 -->
+    <div id="trkPanel" class="trk-panel">
+      <div class="trk-head">
+        <span class="trk-title">🎯 실전 P/L 트래커</span>
+        <button id="trkBtn" class="chip-btn" type="button">▶️ 세션 시작</button>
+      </div>
+      <div class="fld-row trk-inputs">
+        <label class="fld">목표① 수익 <input id="trkT1" class="inp mini" type="number" min="0" value="5000"></label>
+        <label class="fld">목표② 수익 <input id="trkT2" class="inp mini" type="number" min="0" value="10000"></label>
+        <label class="fld">손절 라인(−) <input id="trkSL" class="inp mini" type="number" min="0" value="5000"></label>
+        <label class="fld">목표 판수 <input id="trkMaxR" class="inp mini" type="number" min="1" value="100"></label>
+      </div>
+      <div id="trkLive" class="trk-live"></div>
+    </div>
+
+    <p id="padHint" class="hint">숫자를 눌러 스핀 결과를 기록하세요. (키보드 0~36 + Enter 가능)</p>
+
+    <!-- 룰렛 숫자 패드 (JS가 생성) -->
+    <div class="pad-wrap" role="group" aria-label="룰렛 숫자 패드">
+      <div id="padZero" class="pad-zero"></div>
+      <div id="padGrid" class="pad-grid"></div>
+    </div>
+
+    <!-- ⚡ 배수 입력 패널 : 배수 모드 ON 일 때 표시 -->
+    <div id="multPanel" class="mult-panel" hidden>
+      <div class="mult-row">
+        <span class="mult-label">배수 번호:</span>
+        <div id="multSelChips" class="chip-area"><em class="dim">패드에서 번호 선택 (최대 3개)</em></div>
+      </div>
+      <div class="mult-row">
+        <label for="multValue" class="mult-label">배수값:</label>
+        <select id="multValue" class="inp">
+          <option>20</option><option>50</option><option>100</option><option>150</option>
+          <option selected>200</option><option>250</option><option>300</option><option>350</option>
+          <option>400</option><option>500</option><option>600</option><option>700</option>
+          <option>1000</option><option>2000</option>
+        </select>
+        <button id="btnMultAdd" class="chip-btn" type="button">＋ 배수 확정</button>
+      </div>
+      <div class="mult-row">
+        <span class="mult-label">다음 스핀에 첨부:</span>
+        <div id="pendingMults" class="chip-area"><em class="dim">없음</em></div>
+      </div>
+    </div>
+
+    <!-- 최근 스핀 스트립 -->
+    <div class="recent-wrap">
+      <span class="mult-label">최근 스핀:</span>
+      <div id="recentStrip" class="recent-strip" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ══════════ ② 히스토리 그리드 ══════════ -->
+  <section id="secHistory" class="card">
+    <h2 class="sec-title"><span class="badge">②</span> 히스토리 그리드 <small class="dim" id="histCount"></small></h2>
+    <div class="filter-bar" role="toolbar" aria-label="히스토리 필터">
+      <button class="fbtn active" data-f="all" type="button">전체</button>
+      <button class="fbtn" data-f="red" type="button">🔴 레드만</button>
+      <button class="fbtn" data-f="black" type="button">⚫ 블랙만</button>
+      <button class="fbtn" data-f="zero" type="button">🟢 제로만</button>
+      <button class="fbtn" data-f="mult" type="button">⚡ 배수 히트만</button>
+      <input id="histSearch" class="inp mini" type="number" min="0" max="36" placeholder="번호 찾기" aria-label="번호 검색 하이라이트">
+    </div>
+    <div class="hist-scroll">
+      <div id="histGrid" class="hist-grid"></div>
+    </div>
+  </section>
+
+  <!-- ══════════ ③ 통계 대시보드 ══════════ -->
+  <section id="secStats" class="card">
+    <h2 class="sec-title"><span class="badge">③</span> 통계 대시보드
+      <label class="range-label">범위
+        <select id="statRange" class="inp mini">
+          <option value="30">최근 30</option>
+          <option value="50">최근 50</option>
+          <option value="100" selected>최근 100</option>
+          <option value="500">최근 500</option>
+          <option value="0">전체</option>
+        </select>
+      </label>
+    </h2>
+    <div id="statCards" class="stat-cards"></div>
+    <h3 class="sub-title">번호 히트맵 (최근 범위 내 빈도 — 진할수록 자주 출현)</h3>
+    <div id="heatMap" class="heat-map"></div>
+    <div id="hotCold" class="hot-cold"></div>
+    <h3 class="sub-title">미출현 카운터</h3>
+    <table class="tbl" id="missTable">
+      <thead><tr><th>구분</th><th>이름</th><th>연속 미출현</th><th>상태</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- ══════════ ④ 패턴 알림 ══════════ -->
+  <section id="secAlerts" class="card">
+    <h2 class="sec-title"><span class="badge">④</span> 패턴 감지 알림</h2>
+    <div id="alertList" class="alert-list"></div>
+  </section>
+
+  <!-- ══════════ ⑤ 전략 시뮬레이터 ══════════ -->
+  <section id="secStrategy" class="card">
+    <h2 class="sec-title"><span class="badge">⑤</span> 배팅 전략 시뮬레이터</h2>
+
+    <div class="strat-grid">
+      <!-- 좌: 설정 -->
+      <div class="strat-ctl">
+        <label class="fld">전략 선택
+          <select id="stratSelect" class="inp"></select>
+        </label>
+        <p id="stratDesc" class="hint"></p>
+        <div class="fld-row">
+          <label class="fld">기본 단위 <input id="baseUnit" class="inp mini" type="number" min="1" value="10"></label>
+          <label class="fld">시작 잔고 <input id="bankStart" class="inp mini" type="number" min="1" value="1000"></label>
+        </div>
+        <div class="fld-row">
+          <label class="fld">테이블 최소 <input id="tblMin" class="inp mini" type="number" min="0" value="1"></label>
+          <label class="fld">테이블 최대 <input id="tblMax" class="inp mini" type="number" min="1" value="500"></label>
+        </div>
+        <label class="fld" id="progTargetWrap">이븐머니 진행 기준
+          <select id="progTarget" class="inp">
+            <option value="followColor" selected>직전 승색 추종 (이긴 색 따라가기)</option>
+            <option value="black">블랙 고정</option>
+            <option value="red">레드 고정</option>
+          </select>
+        </label>
+        <label class="chk"><input type="checkbox" id="autoSettle" checked> 스핀 기록 시 자동 정산</label>
+        <div class="btn-row">
+          <button id="btnWin"  class="btn win"  type="button">✅ 승리 기록</button>
+          <button id="btnLose" class="btn lose" type="button">❌ 패배 기록</button>
+        </div>
+        <div class="btn-row">
+          <button id="btnStratReset" class="chip-btn warn" type="button">🔄 전략 초기화</button>
+          <button id="btnReplay" class="chip-btn" type="button">▶️ 기록 리플레이</button>
+        </div>
+      </div>
+
+      <!-- 우: 상태 -->
+      <div class="strat-view">
+        <div id="stratStatus" class="strat-status"></div>
+        <table class="tbl" id="spotTable">
+          <thead><tr><th>배팅 스팟</th><th>금액</th><th>커버</th><th>배당</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="stratLog" class="strat-log"></div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">리플레이 손익 곡선 (기록된 스핀 전체에 전략 자동 실행)</h3>
+    <div id="replaySummary" class="replay-summary"></div>
+    <div class="chart-box"><svg id="replayChart" viewBox="0 0 640 200" preserveAspectRatio="none" role="img" aria-label="리플레이 손익 그래프"></svg></div>
+  </section>
+
+  <!-- ══════════ ⑥ 멀티플 풀커버 분석 ══════════ -->
+  <section id="secCover" class="card">
+    <h2 class="sec-title"><span class="badge">⑥</span> 멀티플 풀커버 분석 <small class="dim">(익스트림/번개 전 번호 커버 운용)</small></h2>
+
+    <div class="cover-ctl">
+      <label class="fld">게임 종류
+        <select id="coverGame" class="inp">
+          <option value="ex2000" selected>익스트림 2000배 (기본 배당 20배)</option>
+          <option value="lt500">번개룰렛 500배 (기본 배당 30배)</option>
+        </select>
+      </label>
+      <label class="fld">번호당 단위 <input id="coverUnit" class="inp mini" type="number" min="1" value="20"></label>
+      <span id="coverCost" class="hint"></span>
+    </div>
+    <p class="hint">기록된 스핀의 배수 데이터를 자동 정산합니다. 수익 산식 = 단위 × (적용배수 − 19). 배수가 걸린 번호가 당첨되면 그 배수, 아니면 기본 배당이 적용됩니다.</p>
+
+    <div id="coverCards" class="stat-cards"></div>
+
+    <h3 class="sub-title">최근 15게임 (한 줄 기록)</h3>
+    <div class="hist-scroll"><table class="tbl tight" id="coverRecent"></table></div>
+
+    <div class="cover-cols">
+      <div>
+        <h3 class="sub-title">배수별 수익표</h3>
+        <table class="tbl tight" id="coverTable">
+          <thead><tr><th>적용 배수</th><th>스핀 수익</th><th>상대 커버 손실</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div>
+        <h3 class="sub-title">누적 배수합 vs 기대치 (경험칙 12.5배/게임)</h3>
+        <div class="chart-box"><svg id="coverChart" viewBox="0 0 640 200" preserveAspectRatio="none" role="img" aria-label="누적 배수 비교 그래프"></svg></div>
+        <div id="coverBench" class="hint"></div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">🕙 시간대별 배수 히트율 (기록된 스핀 타임스탬프 분석)</h3>
+    <div id="coverTime"></div>
+  </section>
+
+  <!-- ══════════ ⑧ 크로스사이트 헷지 검증 계산기 ══════════ -->
+  <section id="secHedge" class="card">
+    <h2 class="sec-title"><span class="badge">⑧</span> 크로스사이트 헷지 검증 계산기
+      <small class="dim">(두 사이트 분할 커버 + 보스 배수 포획 시 중단 운용)</small></h2>
+    <p class="hint">운용법 그대로를 수치화합니다: 사이트A(0~18 직진) + 사이트B(19~36 직진)에 최소 단위로 걸고, 어느 쪽이든 목표 배수 이상이 당첨 번호에 붙으면 즉시 중단. ★은 당신의 실측 관측값을 그대로 입력하는 항목입니다.</p>
+
+    <div class="cover-cols">
+      <div>
+        <h3 class="sub-title">게임 / 베팅 조건</h3>
+        <div class="fld-row">
+          <label class="fld">게임 프리셋
+            <select id="hedgeGame" class="inp">
+              <option value="ex2000" selected>익스트림 2000배 (기본 20배)</option>
+              <option value="lt500">번개룰렛 500배 (기본 30배)</option>
+              <option value="custom">커스텀</option>
+            </select>
+          </label>
+          <label class="fld">기본 직진 배당 (배) <input id="hedgeBase" class="inp mini" type="number" min="1" value="20"></label>
+        </div>
+        <div class="fld-row">
+          <label class="fld">번호당 단위 <input id="hedgeUnit" class="inp mini" type="number" min="1" value="20"></label>
+          <label class="fld">시간당 스핀 수(사이트당) <input id="hedgeSPH" class="inp mini" type="number" min="1" value="45"></label>
+        </div>
+        <div class="fld-row">
+          <label class="fld">A사이트 커버 수 (0~18=<b>19</b>) <input id="hedgeKA" class="inp mini" type="number" min="1" max="36" value="19"></label>
+          <label class="fld">B사이트 커버 수 (19~36=<b>18</b>) <input id="hedgeKB" class="inp mini" type="number" min="1" max="36" value="18"></label>
+        </div>
+        <label class="fld">사이트당 자금(파산 판정용) <input id="hedgeBank" class="inp mini" type="number" min="1" value="20000"></label>
+      </div>
+      <div>
+        <h3 class="sub-title">배수 관측값 ★</h3>
+        <div class="fld-row">
+          <label class="fld">일반 배수 빈도 (회/100게임) ★ <input id="hedgeG" class="inp mini" type="number" min="0" step="0.1" value="10"></label>
+          <label class="fld">일반 배수 평균 ★ <input id="hedgeMNorm" class="inp mini" type="number" min="1" value="125"></label>
+        </div>
+        <div class="fld-row">
+          <label class="fld">보스 배수(≥목표) 빈도 (회/100게임) ★ <input id="hedgeFBig" class="inp mini" type="number" min="0" step="0.01" value="1"></label>
+          <label class="fld">보스 배수 평균 ★ <input id="hedgeMBig" class="inp mini" type="number" min="1" value="800"></label>
+        </div>
+        <div class="fld-row">
+          <label class="fld">중단 목표 배수 <input id="hedgeM" class="inp mini" type="number" min="50" value="500"></label>
+          <label class="fld">심야 시간대 보정 배율 ★
+            <select id="hedgePrime" class="inp">
+              <option value="1" selected>1.0× (시간대 효과 없음)</option>
+              <option value="1.5">1.5× (프라임타임 가정)</option>
+              <option value="2">2.0×</option>
+              <option value="3">3.0×</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button id="hedgeCalc" class="btn win" type="button">📊 기대값 계산</button>
+      <button id="hedgeMC" class="chip-btn" type="button">🎲 몬테카를로 10,000세션 시뮬</button>
+      <button id="hedgeScan" class="chip-btn" type="button">💰 생존 자금 스캔</button>
+      <button id="hedgeCSV" class="chip-btn" type="button">📄 결과 CSV 저장</button>
+      <button id="hedgeOfficial" class="chip-btn warn" type="button">⚖️ 공식 RTP(≈97.3%) 기준으로 초기화</button>
+    </div>
+
+    <div id="hedgeCards" class="stat-cards"></div>
+    <div id="hedgeVerdict"></div>
+    <div id="hedgeData" class="stat-cards" style="margin-top:12px"></div>
+    <div id="hedgeScanOut"></div>
+    <div id="hedgeMCOut"></div>
+    <p class="hint">⚠️ 확률은 시간대·직전 결과와 무관한 독립시행이라는 전제(에볼루션 공식 규격)로 계산합니다. 심야 보정 배율은 "만약 시간대 효과가 진짜라면"의 민감도 분석용이며, 보정 후에도 RTP가 100%를 넘지 않으면 구조적 손실입니다.</p>
+  </section>
+
+  <!-- ══════════ ⑨ 목표 배수 "그만두기" 최적화 (버추얼 패널) ══════════ -->
+  <section id="secVTier" class="card">
+    <h2 class="sec-title"><span class="badge">⑨</span> 그만두기 최적 배수 — 버추얼 비교 패널
+      <small class="dim">(5만엔×2사이트, 전번호 커버 — 300~2000배 중 어디서 멈출까?)</small></h2>
+    <p class="hint">오른쪽 입력의 "배수별 발생 빈도(★실측)"를 바탕으로, 6개 중단 목표 각각을 2,000세션씩 시뮬레이션합니다. 대기 중 터지는 잡배수(50~200배)의 회수 효과까지 반영됩니다.</p>
+
+    <div class="fld-row">
+      <label class="fld">사이트당 자금 <input id="vtBank" class="inp mini" type="number" min="1000" value="50000"></label>
+      <label class="fld">번호당 단위 <input id="vtUnit" class="inp mini" type="number" min="1" value="20"></label>
+    </div>
+    <h3 class="sub-title">배수별 발생 빈도 ★ (회/100게임 — 당첨 번호 기준 실측)</h3>
+    <div id="vtFreqGrid" class="vt-freqgrid"></div>
+    <p id="vtSums" class="hint"></p>
+    <div class="btn-row">
+      <button id="vtRun" class="btn win" type="button">▶️ 6개 목표 비교 시뮬레이션</button>
+      <button id="vtReset" class="chip-btn" type="button">↺ 문서 기본값 복원 (10회·약1250배/100게임)</button>
+    </div>
+    <div id="vtOut"></div>
+    <p class="hint">판정 기준: ⭐추천 = 평균 세션 손익이 가장 높은 목표. 성공률이 높아도 평균 손익이 −면 "자주 따고 크게 잃는" 구조입니다. 배당·커버 수는 ⑧의 설정을 공유합니다.</p>
+
+    <h3 class="sub-title">🧪 가설 검증 센터 <small class="dim">— "빈도 하나의 추정" 대신 "지도 전체"로 검증</small></h3>
+    <p class="hint">손익은 전적으로 "배수 빈도" 입력에 달려 있습니다. ① 보스(2000배) 빈도를 0~1.2회/100게임으로 쓸어 올려 <b>민감도 지도</b>를 만들고, ② 기록에서 자동 추정한 95% 신뢰구간의 <b>3시나리오(비관/중립/낙관)</b>를 돌리며, ③ 심야(22~24시) 우세 가설을 <b>통계 z-검정</b>합니다. 결과는 모두 "만약 이 빈도가 사실이라면"의 조걶 판정이며, 빈도의 진위는 오직 데이터가 답합니다.</p>
+    <div class="fld-row">
+      <label class="fld">민감도 지도 중단 목표
+        <select id="vtSweepT" class="inp mini">
+          <option value="300">300배</option>
+          <option value="500" selected>500배</option>
+          <option value="700">700배</option>
+          <option value="1000">1000배</option>
+          <option value="1500">1500배</option>
+          <option value="2000">2000배</option>
+        </select>
+      </label>
+    </div>
+    <div class="btn-row">
+      <button id="vtSweep" class="btn win" type="button">🗺️ 보스 빈도 민감도 지도 (25단계)</button>
+      <button id="vtFill" class="chip-btn" type="button">📥 기록에서 빈도 자동 채우기</button>
+    </div>
+    <div id="vtSweepOut"></div>
+    <div class="btn-row">
+      <button id="vtScenario" class="btn win" type="button">🧪 관측치 3시나리오 판정 (비관/중립/낙관)</button>
+      <button id="vtPrimeTest" class="btn win" type="button">⏱️ 심야 우세 가설 통계 검정 (22~24시)</button>
+    </div>
+    <div id="vtScenarioOut"></div>
+    <div id="vtPrimeOut"></div>
+  </section>
+
+  <!-- ══════════ ⑩ 휠 섹터 & 편향 분석 ══════════ -->
+  <section id="secWheel" class="card">
+    <h2 class="sec-title"><span class="badge">⑩</span> 휠 섹터 &amp; 편향 분석
+      <small class="dim">(물리 휠 배열 순서 기준 — 프로 트래커 표준)</small></h2>
+    <p class="hint">테이블 배열이 아닌 <b>실제 휠 배열 순서</b>로 분석합니다. 통계 범위는 ③의 설정을 따릅니다. ⚠️ 온라인(RNG) 룰렛은 물리적 편향이 생기지 않습니다 — 이 분석이 의미 있는 것은 실제 휠(오프라인/라이브 실물 휠) 기록뿐입니다.</p>
+    <div class="wheel-cols">
+      <div class="chart-box wheel-box">
+        <svg id="wheelSvg" viewBox="0 0 340 340" role="img" aria-label="휠 히트맵"></svg>
+        <div id="wheelLegend" class="hint"></div>
+      </div>
+      <div>
+        <h3 class="sub-title">섹터 적중 분석 (기대 대비)</h3>
+        <div class="hist-scroll"><table class="tbl tight" id="sectorTable">
+          <thead><tr><th>섹터</th><th>번호 수</th><th>적중</th><th>기대</th><th>비율</th><th>판정</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div id="sectorCards" class="stat-cards" style="margin-top:12px"></div>
+      </div>
+    </div>
+    <h3 class="sub-title">🎩 딜러 시그니처 (연속 투구 관성 분석 — 실물 휠 전용)</h3>
+    <div id="dealerPanel"></div>
+  </section>
+
+  <!-- ══════════ ⑪ 세션 / 데이터 ══════════ -->
+  <section id="secSession" class="card">
+    <h2 class="sec-title"><span class="badge">⑪</span> 세션 &amp; 데이터</h2>
+    <div class="btn-row wrap-row">
+      <select id="sessionSelect" class="inp" aria-label="세션 선택"></select>
+      <button id="btnNewSession"    class="chip-btn" type="button">＋ 새 세션</button>
+      <button id="btnRenameSession" class="chip-btn" type="button">✏️ 이름 변경</button>
+      <button id="btnDelSession"    class="chip-btn warn" type="button">🗑️ 세션 삭제</button>
+      <button id="btnEventDay" class="chip-btn" type="button" aria-pressed="false">📅 이벤트일: OFF</button>
+    </div>
+    <p id="sessionInfo" class="hint"></p>
+    <div id="eventStats"></div>
+
+    <h3 class="sub-title">💼 알바 회계 장부 (실전 수익 기록)</h3>
+    <div class="fld-row">
+      <label class="fld">시작 시드(양쪽 합계) <input id="ledStart" class="inp mini" type="number" min="1" value="100000"></label>
+      <label class="fld">종료 시드 <input id="ledEnd" class="inp mini" type="number" min="0" placeholder="예: 112000"></label>
+      <label class="fld">플레이 시간(분) <input id="ledMin" class="inp mini" type="number" min="1" placeholder="예: 120"></label>
+    </div>
+    <div class="btn-row"><button id="btnLedgerAdd" class="btn win" type="button">＋ 세션 마감 등록</button></div>
+    <div id="ledgerCards" class="stat-cards"></div>
+    <div class="hist-scroll">
+      <table class="tbl tight" id="ledgerTable">
+        <thead><tr><th>날짜</th><th>세션</th><th>수익</th><th>시간</th><th>시급</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3 class="sub-title">📈 누적 자금 곡선 (알바 성적표)</h3>
+    <div class="chart-box"><svg id="ledgerChart" viewBox="0 0 640 200" preserveAspectRatio="none" role="img" aria-label="누적 수익 곡선"></svg></div>
+    <p class="hint">모든 데이터는 이 기기의 브라우저(localStorage)에만 저장됩니다. 정기적으로 ⬇️ 낳기(JSON 백업)를 권장합니다.</p>
+    <div class="btn-row"><button id="btnSpinCSV" class="chip-btn" type="button">🧾 스핀 기록 CSV 낳기 (엑셀 분석용)</button></div>
+
+    <h3 class="sub-title">📋 대량 붙여넣기 가져오기 (OCR 대체 — 외부 기록/메모 일괄 등록)</h3>
+    <textarea id="bulkPaste" class="inp" rows="3" style="width:100%" placeholder="예: 12, 7, 0(200), 33, 26(50), 17  —  쉼표·공백·줄바꿈 구분, (배수)는 선택"></textarea>
+    <div class="btn-row"><button id="btnBulkAdd" class="chip-btn" type="button">＋ 현재 세션에 일괄 추가</button></div>
+  </section>
+
+</main>
+
+<!-- ══════════════ 면책 고지 (하단 고정) ══════════════ -->
+<footer class="disclaimer">
+  ⚠️ 모든 룰렛 스핀은 독립 사건이며, 과거 패턴은 다음 결과에 수학적 영향을 주지 않습니다(유럽식 하우스 엣지 약 2.7%).
+  어떤 전략도 장기 기대값을 플러스로 바꿀 수 없습니다. 이 도구는 기록·자금관리 보조 및 교육 목적이며 실제 승률 상승을 보장하지 않습니다.
+  <span style="opacity:.55">· v1.2 (2026-08 모달 패치)</span>
+</footer>
+
+<!-- ══════════════ 설정 모달 ══════════════ -->
+<div id="settingsModal" class="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <h3 id="setTitle">⚙️ 설정</h3>
+    <label class="fld">기본 테마
+      <select id="setTheme" class="inp"><option value="dark">다크</option><option value="light">라이트</option></select>
+    </label>
+    <label class="fld">통화 기호 <input id="setCurrency" class="inp mini" maxlength="3" value="$"></label>
+    <label class="chk"><input type="checkbox" id="setLightning" checked> ⚡ 라이트닝 모드 (배수 배지 표시)</label>
+    <div class="fld-row">
+      <label class="fld">더즌 미출현 경고 <input id="setDozenMiss" class="inp mini" type="number" min="3" max="30" value="7"></label>
+      <label class="fld">동색 연속 경고 <input id="setColorStreak" class="inp mini" type="number" min="2" max="20" value="4"></label>
+    </div>
+    <div class="fld-row">
+      <label class="fld">제로 미출현 경고 <input id="setZeroMiss" class="inp mini" type="number" min="10" max="1000" value="100"></label>
+      <label class="fld">기본 통계 범위
+        <select id="setStatWindow" class="inp mini">
+          <option value="30">30</option><option value="50">50</option><option value="100" selected>100</option>
+          <option value="500">500</option><option value="0">전체</option>
+        </select>
+      </label>
+    </div>
+    <div class="fld-row">
+      <label class="fld">손절(Stop-Loss) <input id="setStopLoss" class="inp mini" type="number" min="0" value="500"></label>
+      <label class="fld">목표(Take-Profit) <input id="setTakeProfit" class="inp mini" type="number" min="0" value="300"></label>
+    </div>
+    <div class="btn-row end">
+      <button id="btnSetSave"  class="btn win" type="button">저장</button>
+      <button id="btnSetClose" class="chip-btn" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 메시지 컨테이너 -->
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
