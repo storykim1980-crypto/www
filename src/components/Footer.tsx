@@ -1,106 +1,113 @@
 import React from 'react';
 import { CLINIC_INFO } from '../data/dentalData';
+import { Language } from '../types/dental';
+import { Phone, Shield, FileText } from 'lucide-react';
 
 interface FooterProps {
-  onOpenPrices: () => void;
-  onOpenBooking: () => void;
+  lang: Language;
+  onOpenPrivacy: () => void;
+  onOpenPricingDoc: () => void;
+  onOpenPatientRights: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenPrices, onOpenBooking }) => {
+export const Footer: React.FC<FooterProps> = ({
+  lang,
+  onOpenPrivacy,
+  onOpenPricingDoc,
+  onOpenPatientRights
+}) => {
   return (
-    <footer className="bg-slate-950 text-slate-400 text-xs border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-slate-800/80">
-          {/* Brand Info */}
-          <div className="md:col-span-5 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm">
-                김
+    <footer className="bg-[#0C2B24] text-[#E0EBE6] pt-16 pb-28 lg:pb-16 border-t border-[#18483D]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Top Brand & Quick Contact */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12 border-b border-[#1A453C]">
+          <div className="md:col-span-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 rounded-lg bg-[#15483D] flex items-center justify-center text-[#E5D2BA] font-serif-title text-xl font-bold border border-[#246253]">
+                A
               </div>
-              <span className="text-lg font-bold text-white tracking-tight">
-                {CLINIC_INFO.name}
-              </span>
+              <div>
+                <span className="font-serif-title text-lg font-bold tracking-tight text-white">
+                  AVELINE DENTAL CLINIC
+                </span>
+                <p className="text-[11px] text-stone-300">
+                  {lang === 'ko' ? CLINIC_INFO.nameKo : CLINIC_INFO.nameJa}
+                </p>
+              </div>
             </div>
-            <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              보건복지부 인증 치과 전문의 1:1 전담 진료. 과잉진료 없는 정직한 진단과 자연치아 보존을 최우선으로 합니다.
+            <p className="text-xs text-[#9BB1A8] leading-relaxed max-w-md font-light">
+              {lang === 'ko'
+                ? '자연치아 보존을 최우선으로 생각하는 정직한 진료, 1:1 보건복지부 인증 전문의 책임 전담제로 환자분의 평생 구강 건강을 함께합니다.'
+                : '天然歯の保存を最優先にする誠実な診療。保健福祉部認証の専門医チームが生涯の口腔健康を支えます。'}
             </p>
-            <div className="pt-2 text-slate-300">
-              <span className="block text-slate-500 text-[11px]">진료 예약 및 대표 문의</span>
-              <a
-                href={`tel:${CLINIC_INFO.phone}`}
-                className="text-xl font-bold text-white tabular-nums hover:text-teal-400 transition-colors"
-              >
-                {CLINIC_INFO.phone}
-              </a>
-            </div>
           </div>
 
-          {/* Quick Menu */}
-          <div className="md:col-span-3 space-y-2">
-            <span className="font-bold text-white text-xs block mb-3">빠른 진료 메뉴</span>
-            <ul className="space-y-1.5 text-xs text-slate-400">
-              <li>
-                <a href="#doctor" className="hover:text-white transition-colors">전문의료진 소개</a>
-              </li>
-              <li>
-                <a href="#treatments" className="hover:text-white transition-colors">특화 진료 과목 안내</a>
-              </li>
-              <li>
-                <a href="#diagnosis" className="hover:text-white transition-colors">증상별 자가진단 리포트</a>
-              </li>
-              <li>
-                <a href="#insurance" className="hover:text-white transition-colors">국민건강보험 혜택 계산기</a>
-              </li>
-              <li>
-                <a href="#facility" className="hover:text-white transition-colors">첨단 3D 장비 및 멸균 시스템</a>
-              </li>
-              <li>
-                <a href="#location" className="hover:text-white transition-colors">오시는 길 및 주차 안내</a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Compliance Links & Actions */}
-          <div className="md:col-span-4 space-y-3">
-            <span className="font-bold text-white text-xs block mb-2">환자 권리 및 고지</span>
-            <div className="flex flex-wrap gap-2 text-xs">
-              <button
-                onClick={onOpenPrices}
-                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-lg cursor-pointer transition-colors"
-              >
-                비급여 진료비용 비치 안내
-              </button>
-              <button
-                onClick={onOpenBooking}
-                className="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg cursor-pointer transition-colors font-semibold"
-              >
-                온라인 빠른 진료 예약
-              </button>
-            </div>
-            <div className="pt-2 text-[11px] text-slate-400 leading-relaxed">
-              <span>개인정보보호책임자: 김진우 | 의료기관 개설신고: {CLINIC_INFO.licenseNumber}</span>
-              <br />
-              <span>사업자등록번호: {CLINIC_INFO.bizNumber}</span>
+          <div className="md:col-span-6 flex flex-col md:items-end justify-center">
+            <div className="bg-[#123830] p-4 rounded-2xl border border-[#1E4D43] flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#1B5E50] flex items-center justify-center text-[#D8C7B0]">
+                <Phone className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[11px] text-stone-300 block">
+                  {lang === 'ko' ? '진료 예약 및 상담 문의' : 'ご予約・お問い合わせ'}
+                </span>
+                <a
+                  href={`tel:${CLINIC_INFO.phone}`}
+                  className="text-lg sm:text-xl font-bold text-white hover:text-[#D8C7B0] transition"
+                >
+                  {CLINIC_INFO.phone}
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Legal Disclaimer Required by Korean Medical Act */}
-        <div className="pt-8 text-[11px] text-slate-400 leading-relaxed space-y-3">
-          <p>
-            [의료법 준수 고지] 본 웹사이트의 모든 의료 정보 및 임상 콘텐츠는 의료법 제56조 및 동법 시행령을 철저히 준수하여 제작되었습니다.
-            모든 치과 시술 및 치료는 환자의 개인 구강 상태, 골밀도, 전신 질환(당뇨, 고혈압 등)에 따라 출혈, 신경 손상, 부종, 감각 이상 등의 부작용이 발생할 수 있으므로,
-            치료 전 담당 치과의사와의 면밀한 진단 및 상담을 거친 후 신중하게 결정하시기 바랍니다.
+        {/* Business & Medical Institution Information */}
+        <div className="py-8 border-b border-[#1A453C] text-[11px] text-[#8EA69D] space-y-2 leading-relaxed">
+          <p className="font-medium text-stone-300">
+            {lang === 'ko' ? CLINIC_INFO.nameKo : CLINIC_INFO.nameJa} | {lang === 'ko' ? `대표자: ${CLINIC_INFO.directorName}` : `代表者: キム・ドヒョン`} | {lang === 'ko' ? `사업자등록번호: ${CLINIC_INFO.businessNumber}` : `事業者登録番号: ${CLINIC_INFO.businessNumber}`} | {CLINIC_INFO.licenseNo}
           </p>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-slate-400 gap-2 pt-2">
-            <p>
-              {CLINIC_INFO.address} | 대표전화: {CLINIC_INFO.phone} | 응급 직통: {CLINIC_INFO.emergencyPhone}
-            </p>
-            <p className="tabular-nums">
-              Copyright © 2026 {CLINIC_INFO.name}. All rights reserved.
-            </p>
-          </div>
+          <p>
+            {lang === 'ko' ? `주소: ${CLINIC_INFO.addressKo}` : `所在地: ${CLINIC_INFO.addressJa}`} | 대표전화: {CLINIC_INFO.phone} | 팩스: {CLINIC_INFO.fax}
+          </p>
+          <p className="text-[#6D857C]">
+            {lang === 'ko'
+              ? '※ 본 사이트의 모든 치료 사례 및 콘텐츠는 의료법 제56조 및 관계 법령을 준수하여 제작되었으며, 무단 전재 및 재배포를 금지합니다.'
+              : '※ 掲載されたすべての医療情報およびコンテンツは関連医療法規を遵守しております。無断転載・複製を禁止します。'}
+          </p>
         </div>
+
+        {/* Legal Links & Copyright */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-4 text-[#8EA69D]">
+            <button
+              onClick={onOpenPrivacy}
+              className="hover:text-white underline underline-offset-4 cursor-pointer"
+            >
+              {lang === 'ko' ? '개인정보처리방침' : '個人情報保護方針'}
+            </button>
+            <span>•</span>
+            <button
+              onClick={onOpenPricingDoc}
+              className="hover:text-white underline underline-offset-4 cursor-pointer"
+            >
+              {lang === 'ko' ? '비급여 진료비용 고지' : '自由診療料金の告知'}
+            </button>
+            <span>•</span>
+            <button
+              onClick={onOpenPatientRights}
+              className="hover:text-white underline underline-offset-4 cursor-pointer"
+            >
+              {lang === 'ko' ? '환자의 권리와 의무' : '患者の権利と義務'}
+            </button>
+          </div>
+
+          <p className="text-[#6D857C] text-[11px]">
+            © {new Date().getFullYear()} {CLINIC_INFO.nameEn}. All rights reserved.
+          </p>
+        </div>
+
       </div>
     </footer>
   );

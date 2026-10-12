@@ -1,54 +1,114 @@
+export type Language = 'ko' | 'ja';
+
 export interface TreatmentItem {
   id: string;
-  name: string;
-  category: '임플란트' | '자연치아보존' | '사랑니' | '치아교정' | '예방치주' | '심미보철';
-  summary: string;
-  features: string[];
-  duration: string;
+  category: string;
+  title: string;
+  titleJa: string;
+  subtitle: string;
+  subtitleJa: string;
+  description: string;
+  descriptionJa: string;
+  details: string[];
+  detailsJa: string[];
   recommendedFor: string[];
-  processSteps: { title: string; desc: string }[];
-  careTips: string[];
+  recommendedForJa: string[];
+  process: string[];
+  processJa: string[];
+  icon: string;
+  tag: string;
+  tagJa: string;
 }
 
-export interface ReviewItem {
+export interface PricingItem {
   id: string;
-  patientName: string;
+  category: string;
+  categoryJa: string;
+  item: string;
+  itemJa: string;
+  specification: string;
+  specificationJa: string;
+  price: string;
+  priceJa: string;
+  note: string;
+  noteJa: string;
+  warrantyPeriod?: string;
+  warrantyPeriodJa?: string;
+}
+
+export interface Doctor {
+  id: string;
+  name: string;
+  nameJa: string;
+  role: string;
+  roleJa: string;
+  specialty: string;
+  specialtyJa: string;
+  certNumber: string;
+  photoUrl: string;
+  greeting: string;
+  greetingJa: string;
+  career: string[];
+  careerJa: string[];
+  academic: string[];
+  academicJa: string[];
+}
+
+export interface Facility {
+  id: string;
+  title: string;
+  titleJa: string;
+  desc: string;
+  descJa: string;
+  tag: string;
+  tagJa: string;
+  image: string;
+}
+
+export interface Review {
+  id: string;
   treatment: string;
-  rating: number;
+  treatmentJa: string;
+  patient: string;
   date: string;
-  verified: boolean;
   content: string;
-  doctorFeedback?: string;
+  contentJa: string;
+  rating: number;
+  highlight: string;
+  highlightJa: string;
 }
 
-export interface BookingData {
+export interface ColumnArticle {
   id: string;
-  patientName: string;
-  phoneNumber: string;
-  treatmentType: string;
+  title: string;
+  titleJa: string;
+  category: string;
+  categoryJa: string;
+  author: string;
+  date: string;
+  readTime: string;
+  excerpt: string;
+  excerptJa: string;
+  content: string[];
+  contentJa: string[];
+  image: string;
+}
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  questionJa: string;
+  answer: string;
+  answerJa: string;
+  category: string;
+}
+
+export interface ReservationData {
+  treatment: string;
   date: string;
   timeSlot: string;
-  isFirstVisit: boolean;
-  symptomNotes: string;
-  status: '확정' | '접수' | '취소';
-  createdAt: string;
-}
-
-export interface SymptomGuide {
-  id: string;
-  symptom: string;
-  description: string;
-  suspectedConditions: string[];
-  urgency: '보통' | '빠른 내원 필요' | '당일 응급 내원';
-  homeAdvice: string;
-  recommendedTreatment: string;
-}
-
-export interface InsuranceItem {
-  target: string;
-  benefit: string;
-  coPay: string;
-  details: string;
-  eligibleAgeMin?: number;
-  eligibleAgeMax?: number;
+  name: string;
+  phone: string;
+  notes: string;
+  privacyAgreed: boolean;
 }

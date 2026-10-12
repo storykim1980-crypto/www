@@ -1,173 +1,207 @@
-import React, { useState } from 'react';
-import { Menu, X, Phone, Clock, CalendarCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { CLINIC_INFO } from '../data/dentalData';
+import { Language } from '../types/dental';
+import { Phone, Calendar, Globe, Menu, X, Clock, MapPin, ChevronRight } from 'lucide-react';
 
 interface NavbarProps {
-  onOpenBooking: () => void;
-  onOpenPrices: () => void;
-  onOpenCheckBooking: () => void;
+  lang: Language;
+  onLanguageChange: (lang: Language) => void;
+  onOpenReservation: () => void;
+  onOpenKakao: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  onOpenBooking,
-  onOpenPrices,
-  onOpenCheckBooking,
+  lang,
+  onLanguageChange,
+  onOpenReservation,
+  onOpenKakao
 }) => {
+  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = [
-    { label: '의료진 소개', href: '#doctor' },
-    { label: '진료 과목', href: '#treatments' },
-    { label: '증상자가진단', href: '#diagnosis' },
-    { label: '보험혜택', href: '#insurance' },
-    { label: '시설·장비', href: '#facility' },
-    { label: '진료안내·위치', href: '#location' },
-  ];
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 30);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const handleNavClick = (href: string) => {
-    setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const navLinks = [
+    { href: '#philosophy', labelKo: '진료 철학', labelJa: '診療理念' },
+    { href: '#treatments', labelKo: '진료 과목', labelJa: '診療科目' },
+    { href: '#pricing', labelKo: '비급여 수가표', labelJa: '自由診療料金' },
+    { href: '#doctors', labelKo: '의료진 소개', labelJa: '医療陣紹介' },
+    { href: '#facility', labelKo: '병원 시설', labelJa: '院内施設' },
+    { href: '#column', labelKo: '덴탈 칼럼', labelJa: 'デンタルコラム' },
+    { href: '#faq', labelKo: '자주 묻는 질문', labelJa: 'よくある質問' },
+    { href: '#location', labelKo: '오시는 길', labelJa: 'アクセス' },
+  ];
 
   return (
     <>
-      {/* Top Utility Information Bar */}
-      <div className="bg-slate-900 text-slate-300 text-xs border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-4 text-xs font-medium">
-            <span className="flex items-center gap-1.5 text-teal-400">
-              <Clock className="w-3.5 h-3.5" />
-              <span>화·목 야간진료 오후 8:30까지</span>
+      {/* Top Notice Bar */}
+      <div className="bg-[#0C2B24] text-[#E0EBE6] text-xs py-2 px-4 border-b border-[#1A453C]">
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+          <div className="flex items-center gap-4 text-xs font-light">
+            <span className="flex items-center gap-1.5 text-emerald-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              {lang === 'ko' ? '화·목 야간진료 저녁 8:30까지' : '火・木 夜間診療 20:30まで'}
             </span>
-            <span className="hidden sm:inline text-slate-500">·</span>
-            <span className="hidden sm:inline text-slate-400">
-              토요일 점심시간 없이 오후 2:00까지
+            <span className="hidden md:inline-block text-white/30">|</span>
+            <span className="hidden md:flex items-center gap-1 text-stone-300">
+              <MapPin className="w-3.5 h-3.5 text-stone-400" />
+              {lang === 'ko' ? CLINIC_INFO.subwayKo : CLINIC_INFO.subwayJa}
             </span>
           </div>
+
           <div className="flex items-center gap-4 text-xs">
             <button
-              onClick={onOpenCheckBooking}
-              className="text-slate-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+              onClick={onOpenKakao}
+              className="text-[#E0EBE6] hover:text-white transition flex items-center gap-1 cursor-pointer"
             >
-              <CalendarCheck className="w-3.5 h-3.5 text-teal-400" />
-              <span>예약 내역 조회</span>
+              <span className="bg-[#FEE500] text-[#191919] text-[10px] font-bold px-1.5 py-0.5 rounded">TALK</span>
+              <span>{lang === 'ko' ? '카카오 실시간 상담' : 'カカオ・LINE相談'}</span>
             </button>
-            <span className="text-slate-600">·</span>
-            <button
-              onClick={onOpenPrices}
-              className="text-slate-300 hover:text-white transition-colors cursor-pointer"
-            >
-              비급여 진료비 안내
-            </button>
-            <span className="text-slate-600">·</span>
-            <a
-              href={`tel:${CLINIC_INFO.phone}`}
-              className="flex items-center gap-1.5 text-slate-200 hover:text-teal-300 transition-colors font-medium tabular-nums"
-            >
-              <Phone className="w-3.5 h-3.5 text-teal-400" />
-              <span>{CLINIC_INFO.phone}</span>
-            </a>
+            <span className="text-white/30">|</span>
+            <div className="flex items-center gap-1 text-stone-300">
+              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <button
+                onClick={() => onLanguageChange('ko')}
+                className={`px-1 font-medium transition cursor-pointer ${
+                  lang === 'ko' ? 'text-white font-bold underline underline-offset-2' : 'text-stone-400 hover:text-white'
+                }`}
+              >
+                KR
+              </button>
+              <span className="text-stone-600">/</span>
+              <button
+                onClick={() => onLanguageChange('ja')}
+                className={`px-1 font-medium transition cursor-pointer ${
+                  lang === 'ja' ? 'text-white font-bold underline underline-offset-2' : 'text-stone-400 hover:text-white'
+                }`}
+              >
+                JP
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Navigation Bar - Following Top Bar Contract */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-8 h-18">
-            {/* Zone 1: Single text element wordmark */}
+      {/* Main Sticky Navbar */}
+      <header
+        className={`sticky top-0 z-40 transition-all duration-300 ${
+          scrolled
+            ? 'bg-[#FAF9F5]/95 backdrop-blur-md shadow-sm border-b border-[#E8E5DD] py-3.5'
+            : 'bg-[#FAF9F5] border-b border-[#EFECE4] py-4'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          {/* Logo */}
+          <a href="#" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-lg bg-[#0C2B24] flex items-center justify-center text-[#E5D2BA] font-serif-title text-xl font-bold shadow-sm transition group-hover:bg-[#13463B]">
+              A
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-serif-title text-xl font-bold tracking-tight text-[#0C2B24]">
+                  AVELINE
+                </span>
+                <span className="text-[11px] font-medium tracking-widest text-[#8A7968] uppercase">
+                  SEOUL
+                </span>
+              </div>
+              <p className="text-[11px] text-[#55635F] tracking-tight font-medium">
+                {lang === 'ko' ? CLINIC_INFO.nameKo : CLINIC_INFO.nameJa}
+              </p>
+            </div>
+          </a>
+
+          {/* Desktop Nav Links */}
+          <nav className="hidden lg:flex items-center gap-7">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-[14px] font-medium text-[#38423F] hover:text-[#0C2B24] transition relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#0C2B24] hover:after:w-full after:transition-all"
+              >
+                {lang === 'ko' ? link.labelKo : link.labelJa}
+              </a>
+            ))}
+          </nav>
+
+          {/* Right Action Buttons */}
+          <div className="hidden sm:flex items-center gap-3">
             <a
-              href="#"
-              className="flex items-center gap-2.5 text-slate-900 whitespace-nowrap shrink-0 group"
+              href={`tel:${CLINIC_INFO.phone}`}
+              className="flex items-center gap-2 text-[13px] font-medium text-[#0C2B24] px-3.5 py-2 rounded-full border border-[#D5D0C3] hover:border-[#0C2B24] hover:bg-[#F3EFE6] transition"
             >
-              <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold text-lg shadow-xs group-hover:bg-teal-700 transition-colors">
-                김
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold tracking-tight text-slate-900 leading-none">
-                  {CLINIC_INFO.name}
-                </span>
-                <span className="text-[11px] text-slate-500 tracking-wider mt-0.5">
-                  KIM DENTAL CLINIC
-                </span>
-              </div>
+              <Phone className="w-3.5 h-3.5 text-[#0C2B24]" />
+              <span className="font-semibold tracking-tight">{CLINIC_INFO.phone}</span>
             </a>
 
-            {/* Zone 2: 4-5 single-line clean text navigation links */}
-            <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-700">
-              {navLinks.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => handleNavClick(link.href)}
-                  className="whitespace-nowrap shrink-0 hover:text-teal-700 transition-colors cursor-pointer py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-teal-600 hover:after:w-full after:transition-all"
-                >
-                  {link.label}
-                </button>
-              ))}
-            </nav>
+            <button
+              onClick={onOpenReservation}
+              className="flex items-center gap-2 bg-[#0C2B24] text-white hover:bg-[#15483D] active:scale-95 text-[13px] font-medium px-4 py-2 rounded-full shadow-sm transition cursor-pointer"
+            >
+              <Calendar className="w-4 h-4 text-[#D8C7B0]" />
+              <span>{lang === 'ko' ? '빠른 온라인 예약' : 'オンライン予約'}</span>
+            </button>
+          </div>
 
-            {/* Zone 3: 1 primary action */}
-            <div className="hidden sm:flex items-center gap-3 shrink-0">
-              <button
-                onClick={onOpenBooking}
-                className="px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 active:bg-teal-800 transition-colors shadow-xs whitespace-nowrap shrink-0 cursor-pointer"
-              >
-                빠른 진료 예약
-              </button>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="flex sm:hidden items-center gap-2">
-              <button
-                onClick={onOpenBooking}
-                className="px-3 py-1.5 text-xs font-semibold text-white bg-teal-600 rounded-md whitespace-nowrap"
-              >
-                예약
-              </button>
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-slate-600 hover:text-slate-900 rounded-lg focus:outline-hidden"
-                aria-label="메뉴 열기"
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
+          {/* Mobile Hamburger Button */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              onClick={onOpenReservation}
+              className="bg-[#0C2B24] text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 sm:hidden"
+            >
+              <Calendar className="w-3 h-3 text-[#D8C7B0]" />
+              <span>{lang === 'ko' ? '예약' : '予約'}</span>
+            </button>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg text-[#0C2B24] hover:bg-[#EFECE4] transition"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-2">
-            {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => handleNavClick(link.href)}
-                className="block w-full text-left py-2.5 px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md"
+          <div className="lg:hidden bg-[#FAF9F5] border-t border-[#E8E5DD] px-4 pt-3 pb-6 shadow-xl animate-in fade-in slide-in-from-top-2">
+            <div className="flex flex-col gap-1 pb-4 border-b border-[#EFECE4]">
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between py-2.5 px-3 text-[15px] font-medium text-[#2E3B36] hover:bg-[#F1EDE2] rounded-lg transition"
+                >
+                  <span>{lang === 'ko' ? link.labelKo : link.labelJa}</span>
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                </a>
+              ))}
+            </div>
+
+            <div className="pt-4 flex flex-col gap-2.5">
+              <a
+                href={`tel:${CLINIC_INFO.phone}`}
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-[#0C2B24] text-[#0C2B24] font-medium text-sm"
               >
-                {link.label}
-              </button>
-            ))}
-            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                <Phone className="w-4 h-4" />
+                <span>{CLINIC_INFO.phone} {lang === 'ko' ? '전화 상담' : '電話相談'}</span>
+              </a>
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  onOpenBooking();
+                  onOpenReservation();
                 }}
-                className="w-full py-3 text-center text-sm font-semibold text-white bg-teal-600 rounded-lg"
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-[#0C2B24] text-white font-medium text-sm shadow cursor-pointer"
               >
-                빠른 진료 예약
-              </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenPrices();
-                }}
-                className="w-full py-2.5 text-center text-xs font-medium text-slate-600 bg-slate-100 rounded-lg"
-              >
-                비급여 진료비 안내표 확인
+                <Calendar className="w-4 h-4 text-[#D8C7B0]" />
+                <span>{lang === 'ko' ? '실시간 간편 예약하기' : 'オンライン簡単予約'}</span>
               </button>
             </div>
           </div>

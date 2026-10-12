@@ -1,6 +1,6 @@
 {
-  "name": "김치과의원",
-  "description": "과잉진료 없는 정직한 진료, 보건복지부 인증 치과 전문의 1:1 맞춤 진료 및 자연치아 보존 김치과 공식 홈페이지",
+  "name": "아베린 서울치과의원 | Aveline Dental Clinic",
+  "description": "한국인 정서에 맞춘 자연치아 보존 중심, 1:1 맞춤 진료 및 투명한 비급여 수가제를 실천하는 프리미엄 치과의원 웹사이트",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

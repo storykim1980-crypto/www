@@ -1,110 +1,174 @@
 import React, { useState } from 'react';
+import { Language, ColumnArticle } from './types/dental';
 import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
-import { Philosophy } from './components/Philosophy';
-import { DoctorIntro } from './components/DoctorIntro';
-import { Treatments } from './components/Treatments';
-import { DentalGuide } from './components/DentalGuide';
-import { FacilityTech } from './components/FacilityTech';
-import { Reviews } from './components/Reviews';
+import { HeroSection } from './components/HeroSection';
+import { PhilosophySection } from './components/PhilosophySection';
+import { TreatmentsSection } from './components/TreatmentsSection';
+import { PricingSection } from './components/PricingSection';
+import { DoctorsSection } from './components/DoctorsSection';
+import { FacilitySection } from './components/FacilitySection';
+import { ReviewsSection } from './components/ReviewsSection';
+import { ColumnSection } from './components/ColumnSection';
 import { FaqSection } from './components/FaqSection';
-import { LocationInfo } from './components/LocationInfo';
+import { ReservationSection } from './components/ReservationSection';
+import { LocationSection } from './components/LocationSection';
 import { Footer } from './components/Footer';
-import { BookingModal } from './components/BookingModal';
-import { NonCoveredPricesModal } from './components/NonCoveredPricesModal';
+import { MobileBottomBar } from './components/MobileBottomBar';
+import {
+  ReservationSuccessModal,
+  ArticleModal,
+  KakaoConsultModal,
+  LegalModal
+} from './components/Modals';
 
 export default function App() {
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [bookingInitialTreatment, setBookingInitialTreatment] = useState('');
-  const [bookingInitialTab, setBookingInitialTab] = useState<'book' | 'check'>('book');
-  const [isPricesOpen, setIsPricesOpen] = useState(false);
+  const [lang, setLang] = useState<Language>('ko');
+  const [preselectedTreatment, setPreselectedTreatment] = useState<string>('');
+  
+  // Modals state
+  const [bookingSuccessData, setBookingSuccessData] = useState<{
+    bookingNo: string;
+    treatment: string;
+    date: string;
+    time: string;
+    name: string;
+    phone: string;
+  } | null>(null);
 
-  const handleOpenBooking = (treatmentName: string = '') => {
-    setBookingInitialTreatment(treatmentName);
-    setBookingInitialTab('book');
-    setIsBookingOpen(true);
-  };
+  const [activeArticle, setActiveArticle] = useState<ColumnArticle | null>(null);
+  const [kakaoModalOpen, setKakaoModalOpen] = useState<boolean>(false);
+  const [legalModalType, setLegalModalType] = useState<'privacy' | 'pricing' | 'rights' | null>(null);
 
-  const handleOpenCheckBooking = () => {
-    setBookingInitialTab('check');
-    setIsBookingOpen(true);
-  };
-
-  const handleScrollToDiagnosis = () => {
-    const el = document.getElementById('diagnosis');
+  // Scroll to reservation section smoothly
+  const scrollToReservation = () => {
+    const el = document.getElementById('reservation');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
+  const scrollToPricing = () => {
+    const el = document.getElementById('pricing');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSelectTreatmentForReservation = (treatmentTitle: string) => {
+    setPreselectedTreatment(treatmentTitle);
+    scrollToReservation();
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 selection:bg-teal-100 selection:text-teal-900">
-      {/* Top Navbar */}
+    <div className="min-h-screen bg-[#FAF9F5] text-[#242424] flex flex-col font-sans">
+      {/* 1. Header / Navbar */}
       <Navbar
-        onOpenBooking={() => handleOpenBooking('')}
-        onOpenPrices={() => setIsPricesOpen(true)}
-        onOpenCheckBooking={handleOpenCheckBooking}
+        lang={lang}
+        onLanguageChange={setLang}
+        onOpenReservation={scrollToReservation}
+        onOpenKakao={() => setKakaoModalOpen(true)}
       />
 
-      {/* Main Content Sections */}
-      <main className="flex-1">
-        {/* 1. Hero Section */}
-        <Hero
-          onOpenBooking={() => handleOpenBooking('')}
-          onScrollToDiagnosis={handleScrollToDiagnosis}
-        />
+      {/* 2. Hero Section */}
+      <HeroSection
+        lang={lang}
+        onOpenReservation={scrollToReservation}
+        onOpenPricing={scrollToPricing}
+      />
 
-        {/* 2. Philosophy & 4 Core Principles */}
-        <Philosophy />
+      {/* 3. Philosophy & 4 Steps Process */}
+      <PhilosophySection lang={lang} />
 
-        {/* 3. Medical Director Introduction */}
-        <DoctorIntro
-          onOpenBooking={() => handleOpenBooking('')}
-        />
+      {/* 4. Specialized Treatments */}
+      <TreatmentsSection
+        lang={lang}
+        onSelectTreatmentForReservation={handleSelectTreatmentForReservation}
+      />
 
-        {/* 4. Clinical Treatments */}
-        <Treatments
-          onOpenBookingWithTreatment={(treatment) => handleOpenBooking(treatment)}
-        />
+      {/* 5. Transparent Pricing Table */}
+      <PricingSection
+        lang={lang}
+        onOpenReservation={scrollToReservation}
+      />
 
-        {/* 5. Symptom Checker & Health Insurance Calculator */}
-        <DentalGuide
-          onOpenBookingWithTreatment={(treatment) => handleOpenBooking(treatment)}
-        />
+      {/* 6. Medical Team / Doctors */}
+      <DoctorsSection lang={lang} />
 
-        {/* 6. Facility, Advanced Tech & Infection Control */}
-        <FacilityTech />
+      {/* 7. Clinical Facility & Sterilization */}
+      <FacilitySection lang={lang} />
 
-        {/* 7. Real Patient Reviews & Submission */}
-        <Reviews />
+      {/* 8. Patient Reviews */}
+      <ReviewsSection lang={lang} />
 
-        {/* 8. Frequently Asked Questions */}
-        <FaqSection />
+      {/* 9. Dental Columns & Magazine */}
+      <ColumnSection
+        lang={lang}
+        onOpenArticle={(article) => setActiveArticle(article)}
+      />
 
-        {/* 9. Location, Hours & Parking */}
-        <LocationInfo
-          onOpenBooking={() => handleOpenBooking('')}
-        />
-      </main>
+      {/* 10. Frequently Asked Questions */}
+      <FaqSection
+        lang={lang}
+        onOpenKakao={() => setKakaoModalOpen(true)}
+      />
 
-      {/* Footer */}
+      {/* 11. Online Reservation System */}
+      <ReservationSection
+        lang={lang}
+        preselectedTreatment={preselectedTreatment}
+        onReservationComplete={(summary) => setBookingSuccessData(summary)}
+      />
+
+      {/* 12. Location & Hours */}
+      <LocationSection lang={lang} />
+
+      {/* 13. Footer */}
       <Footer
-        onOpenPrices={() => setIsPricesOpen(true)}
-        onOpenBooking={() => handleOpenBooking('')}
+        lang={lang}
+        onOpenPrivacy={() => setLegalModalType('privacy')}
+        onOpenPricingDoc={() => setLegalModalType('pricing')}
+        onOpenPatientRights={() => setLegalModalType('rights')}
       />
 
-      {/* Interactive Modals */}
-      <BookingModal
-        isOpen={isBookingOpen}
-        onClose={() => setIsBookingOpen(false)}
-        initialTreatment={bookingInitialTreatment}
-        initialTab={bookingInitialTab}
+      {/* 14. Mobile Floating Bottom Bar */}
+      <MobileBottomBar
+        lang={lang}
+        onOpenReservation={scrollToReservation}
+        onOpenKakao={() => setKakaoModalOpen(true)}
       />
 
-      <NonCoveredPricesModal
-        isOpen={isPricesOpen}
-        onClose={() => setIsPricesOpen(false)}
-      />
+      {/* Modals */}
+      {bookingSuccessData && (
+        <ReservationSuccessModal
+          lang={lang}
+          data={bookingSuccessData}
+          onClose={() => setBookingSuccessData(null)}
+        />
+      )}
+
+      {activeArticle && (
+        <ArticleModal
+          lang={lang}
+          article={activeArticle}
+          onClose={() => setActiveArticle(null)}
+        />
+      )}
+
+      {kakaoModalOpen && (
+        <KakaoConsultModal
+          lang={lang}
+          onClose={() => setKakaoModalOpen(false)}
+          onOpenReservation={scrollToReservation}
+        />
+      )}
+
+      {legalModalType && (
+        <LegalModal
+          lang={lang}
+          type={legalModalType}
+          onClose={() => setLegalModalType(null)}
+        />
+      )}
     </div>
   );
 }
