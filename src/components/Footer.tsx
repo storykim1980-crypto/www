@@ -1,113 +1,239 @@
-import React from 'react';
-import { CLINIC_INFO } from '../data/dentalData';
-import { Language } from '../types/dental';
-import { Phone, Shield, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Language, DOCTORS } from '../data/clinicData';
+import { Phone, Mail, MapPin, Clock, Globe, ArrowRight, Check } from 'lucide-react';
 
 interface FooterProps {
-  lang: Language;
-  onOpenPrivacy: () => void;
-  onOpenPricingDoc: () => void;
-  onOpenPatientRights: () => void;
+  currentLang: Language;
+  onNavigate: (sectionId: string) => void;
+  onOpenBooking: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
-  lang,
-  onOpenPrivacy,
-  onOpenPricingDoc,
-  onOpenPatientRights
+  currentLang,
+  onNavigate,
+  onOpenBooking,
 }) => {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterSubscribed(true);
+    setTimeout(() => {
+      setNewsletterEmail('');
+    }, 2000);
+  };
+
+  const labels = {
+    quote: {
+      ko: '치아를 깎지 않는 자연스러운 미소, 오랜 시간 망설였던 치과 방문의 불안을 완전히 덜어드리겠습니다. 당신만을 위한 정밀한 치료를 약속합니다.',
+      ja: '削らない自然な美しさ、長年ためらっていた歯医者への不安を安心へと変えます。生涯輝き続ける笑顔を共にお届けします。',
+      en: "We helped patients with dull smiles, lingering pain, and years of putting it off. Whatever's kept you from the dentist, we'll make it worth the visit. Guaranteed.",
+    },
+    doctorSignature: {
+      ko: '박민우 대표원장 & 사토 유카 원장',
+      ja: '朴民宇 総括院長 ＆ 佐藤由香 院長',
+      en: 'Dr. Min-woo Park & Dr. Yuka Sato',
+    },
+    newsletterTitle: {
+      ko: '덴탈 인사이트 뉴스레터 구독',
+      ja: '審美歯科コラム・最新情報の購読',
+      en: 'Subscribe to our newsletter',
+    },
+    newsletterDesc: {
+      ko: '최신 무삭제 심미치료와 투명교정 임상 정보 및 정기 검진 가이드를 받아보세요.',
+      ja: '最新の低侵襲審美治療やマウスピース矯正の役立つケア情報をお届けします。',
+      en: 'Get tips, treatment insights, and exclusive health guides straight to your inbox.',
+    },
+    subscribeBtn: { ko: '구독 신청', ja: '登録する', en: 'Subscribe' },
+    subscribedMsg: { ko: '구독 신청이 완료되었습니다', ja: 'ご登録ありがとうございました', en: 'Subscribed!' },
+    hoursTitle: { ko: '진료 시간 안내', ja: '診療時間のご案内', en: 'Opening Hours' },
+    hours: [
+      { days: { ko: '월 · 수 · 금', ja: '月・水・金', en: 'Mon · Wed · Fri' }, time: '09:30 - 18:30' },
+      { days: { ko: '화 · 목 (야간진료)', ja: '火・木 (夜間診療)', en: 'Tue · Thu (Night)' }, time: '09:30 - 20:30' },
+      { days: { ko: '토요일 (점심시간 없음)', ja: '土曜日 (昼休みなし)', en: 'Saturday' }, time: '09:30 - 15:30' },
+      { days: { ko: '일요일 / 공휴일', ja: '日曜日・祝日', en: 'Sun / Holidays' }, time: { ko: '휴진', ja: '休診', en: 'Closed' } },
+    ],
+    doctorsTitle: { ko: '의료진', ja: '担当医師', en: 'Doctors' },
+    quickLinksTitle: { ko: '바로가기', ja: 'クイックリンク', en: 'Quick Links' },
+    legalTitle: { ko: '이용안내 & 보증', ja: '規約・保証', en: 'Legal & Warranty' },
+  };
+
   return (
-    <footer className="bg-[#0C2B24] text-[#E0EBE6] pt-16 pb-28 lg:pb-16 border-t border-[#18483D]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Top Brand & Quick Contact */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12 border-b border-[#1A453C]">
-          <div className="md:col-span-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-[#15483D] flex items-center justify-center text-[#E5D2BA] font-serif-title text-xl font-bold border border-[#246253]">
-                A
-              </div>
-              <div>
-                <span className="font-serif-title text-lg font-bold tracking-tight text-white">
-                  AVELINE DENTAL CLINIC
+    <footer className="bg-[#14291E] text-[#D8E4DC] pt-16 pb-12 border-t border-[#234232]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* Top Split: Wordmark & Founder Quote */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12 border-b border-[#234232]">
+          {/* Brand info */}
+          <div className="lg:col-span-5 space-y-4">
+            <span className="font-display text-2xl font-bold tracking-tight text-white block">
+              DENTART
+            </span>
+            <p className="text-xs text-[#A8BEB1] font-mono tracking-wider">
+              AESTHETIC & ORTHODONTIC DENTAL STUDIO · SEOUL & TOKYO
+            </p>
+            <div className="text-xs space-y-2 text-[#C0D3C7] pt-2">
+              <p className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-[#7BB894] shrink-0 mt-0.5" />
+                <span>
+                  {currentLang === 'ja'
+                    ? 'ソウル特別市江南区テヘラン路142 アルヌーボビル 4階（江南駅1番出口 徒歩2分）'
+                    : '서울시 강남구 테헤란로 142 아르누보빌딩 4층 (강남역 1번출구 도보 2분)'}
                 </span>
-                <p className="text-[11px] text-stone-300">
-                  {lang === 'ko' ? CLINIC_INFO.nameKo : CLINIC_INFO.nameJa}
-                </p>
-              </div>
+              </p>
+              <p className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-[#7BB894] shrink-0" />
+                <span>+82 2-588-2875 (한국어 / 日本語 / English)</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#7BB894] shrink-0" />
+                <span>contact@dentart-studio.com</span>
+              </p>
             </div>
-            <p className="text-xs text-[#9BB1A8] leading-relaxed max-w-md font-light">
-              {lang === 'ko'
-                ? '자연치아 보존을 최우선으로 생각하는 정직한 진료, 1:1 보건복지부 인증 전문의 책임 전담제로 환자분의 평생 구강 건강을 함께합니다.'
-                : '天然歯の保存を最優先にする誠実な診療。保健福祉部認証の専門医チームが生涯の口腔健康を支えます。'}
+          </div>
+
+          {/* Director Quote */}
+          <div className="lg:col-span-7 bg-[#1A3527] p-7 rounded-2xl border border-[#2A4D39] space-y-4">
+            <p className="text-xs sm:text-sm text-[#E2EBE5] italic leading-relaxed font-light">
+              "{labels.quote[currentLang]}"
+            </p>
+            <div className="flex items-center justify-between text-xs pt-2 border-t border-[#294B37]">
+              <div>
+                <p className="font-semibold text-white">{labels.doctorSignature[currentLang]}</p>
+                <p className="text-[#8FB39D] text-[11px]">DENTART Aesthetic & Orthodontic Directors</p>
+              </div>
+              <button
+                onClick={onOpenBooking}
+                className="bg-[#2D5A42] hover:bg-[#396F53] text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+              >
+                1:1 상담 예약
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Middle Grid: Newsletter, Doctors, Quick Links, Hours */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 text-xs">
+          {/* Newsletter (4 cols) */}
+          <div className="lg:col-span-4 space-y-4">
+            <h4 className="font-semibold text-white text-sm">
+              {labels.newsletterTitle[currentLang]}
+            </h4>
+            <p className="text-xs text-[#9BB5A6] leading-relaxed">
+              {labels.newsletterDesc[currentLang]}
+            </p>
+            <form onSubmit={handleSubscribe} className="space-y-2">
+              <input
+                type="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                placeholder="email@example.com"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-[#0F2018] border border-[#274837] text-white placeholder-[#5A7667] text-xs focus:outline-none focus:border-[#7BB894]"
+              />
+              <button
+                type="submit"
+                className="w-full bg-[#274E39] hover:bg-[#34664B] text-white py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {newsletterSubscribed ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-[#A8D0B5]" />
+                    <span>{labels.subscribedMsg[currentLang]}</span>
+                  </>
+                ) : (
+                  <span>{labels.subscribeBtn[currentLang]}</span>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Doctors (2 cols) */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="font-semibold text-white text-sm">
+              {labels.doctorsTitle[currentLang]}
+            </h4>
+            <ul className="space-y-2 text-[#B3C8BC]">
+              {DOCTORS.map((doc) => (
+                <li key={doc.id}>
+                  <button
+                    onClick={() => onNavigate('doctors')}
+                    className="hover:text-white transition-colors text-left"
+                  >
+                    {doc.name[currentLang]}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Quick links (2 cols) */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="font-semibold text-white text-sm">
+              {labels.quickLinksTitle[currentLang]}
+            </h4>
+            <ul className="space-y-2 text-[#B3C8BC]">
+              <li>
+                <button onClick={() => onNavigate('treatments')} className="hover:text-white transition-colors">
+                  치료 상세 (Treatments)
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('cases')} className="hover:text-white transition-colors">
+                  임상 케이스 (Cases)
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('process')} className="hover:text-white transition-colors">
+                  치료 과정 (Process)
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('faq')} className="hover:text-white transition-colors">
+                  자주 묻는 질문 (FAQ)
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onOpenBooking()} className="hover:text-white transition-colors">
+                  실시간 예약 (Booking)
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Opening Hours (4 cols) */}
+          <div className="lg:col-span-4 space-y-3">
+            <h4 className="font-semibold text-white text-sm flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#7BB894]" />
+              <span>{labels.hoursTitle[currentLang]}</span>
+            </h4>
+            <div className="space-y-1.5 text-[#B3C8BC] bg-[#102319] p-3.5 rounded-xl border border-[#224131]">
+              {labels.hours.map((h, i) => (
+                <div key={i} className="flex justify-between py-0.5 border-b border-[#1A3828] last:border-0">
+                  <span>{h.days[currentLang]}</span>
+                  <span className="font-mono text-white">
+                    {typeof h.time === 'object' ? h.time[currentLang] : h.time}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-[#7E9C8B]">
+              점심시간 13:00 - 14:00 (토요일은 점심시간 없이 진료)
             </p>
           </div>
+        </div>
 
-          <div className="md:col-span-6 flex flex-col md:items-end justify-center">
-            <div className="bg-[#123830] p-4 rounded-2xl border border-[#1E4D43] flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#1B5E50] flex items-center justify-center text-[#D8C7B0]">
-                <Phone className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[11px] text-stone-300 block">
-                  {lang === 'ko' ? '진료 예약 및 상담 문의' : 'ご予約・お問い合わせ'}
-                </span>
-                <a
-                  href={`tel:${CLINIC_INFO.phone}`}
-                  className="text-lg sm:text-xl font-bold text-white hover:text-[#D8C7B0] transition"
-                >
-                  {CLINIC_INFO.phone}
-                </a>
-              </div>
-            </div>
+        {/* Bottom Bar: Legal & Copyright */}
+        <div className="pt-8 border-t border-[#234232] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#7E9C8B]">
+          <p>© 2026 DENTART Aesthetic & Orthodontic Dental Studio. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            <span>사업자등록번호: 211-12-89240</span>
+            <span>·</span>
+            <span>의료기관 개설신고번호: 제2023-서울강남-0418호</span>
+            <span>·</span>
+            <span>스위스 정품 보증 관리센터</span>
           </div>
         </div>
-
-        {/* Business & Medical Institution Information */}
-        <div className="py-8 border-b border-[#1A453C] text-[11px] text-[#8EA69D] space-y-2 leading-relaxed">
-          <p className="font-medium text-stone-300">
-            {lang === 'ko' ? CLINIC_INFO.nameKo : CLINIC_INFO.nameJa} | {lang === 'ko' ? `대표자: ${CLINIC_INFO.directorName}` : `代表者: キム・ドヒョン`} | {lang === 'ko' ? `사업자등록번호: ${CLINIC_INFO.businessNumber}` : `事業者登録番号: ${CLINIC_INFO.businessNumber}`} | {CLINIC_INFO.licenseNo}
-          </p>
-          <p>
-            {lang === 'ko' ? `주소: ${CLINIC_INFO.addressKo}` : `所在地: ${CLINIC_INFO.addressJa}`} | 대표전화: {CLINIC_INFO.phone} | 팩스: {CLINIC_INFO.fax}
-          </p>
-          <p className="text-[#6D857C]">
-            {lang === 'ko'
-              ? '※ 본 사이트의 모든 치료 사례 및 콘텐츠는 의료법 제56조 및 관계 법령을 준수하여 제작되었으며, 무단 전재 및 재배포를 금지합니다.'
-              : '※ 掲載されたすべての医療情報およびコンテンツは関連医療法規を遵守しております。無断転載・複製を禁止します。'}
-          </p>
-        </div>
-
-        {/* Legal Links & Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <div className="flex flex-wrap items-center gap-4 text-[#8EA69D]">
-            <button
-              onClick={onOpenPrivacy}
-              className="hover:text-white underline underline-offset-4 cursor-pointer"
-            >
-              {lang === 'ko' ? '개인정보처리방침' : '個人情報保護方針'}
-            </button>
-            <span>•</span>
-            <button
-              onClick={onOpenPricingDoc}
-              className="hover:text-white underline underline-offset-4 cursor-pointer"
-            >
-              {lang === 'ko' ? '비급여 진료비용 고지' : '自由診療料金の告知'}
-            </button>
-            <span>•</span>
-            <button
-              onClick={onOpenPatientRights}
-              className="hover:text-white underline underline-offset-4 cursor-pointer"
-            >
-              {lang === 'ko' ? '환자의 권리와 의무' : '患者の権利と義務'}
-            </button>
-          </div>
-
-          <p className="text-[#6D857C] text-[11px]">
-            © {new Date().getFullYear()} {CLINIC_INFO.nameEn}. All rights reserved.
-          </p>
-        </div>
-
       </div>
     </footer>
   );

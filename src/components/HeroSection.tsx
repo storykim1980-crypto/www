@@ -1,251 +1,175 @@
 import React from 'react';
-import { CLINIC_INFO } from '../data/dentalData';
-import { Language } from '../types/dental';
-import { ShieldCheck, Award, Sparkles, Clock, CheckCircle2, ArrowRight, Calendar, Stethoscope } from 'lucide-react';
+import { Language, CLINIC_IMAGES } from '../data/clinicData';
+import { ArrowRight, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface HeroSectionProps {
-  lang: Language;
-  onOpenReservation: () => void;
-  onOpenPricing: () => void;
+  currentLang: Language;
+  onOpenBooking: () => void;
+  onExploreTreatments: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  lang,
-  onOpenReservation,
-  onOpenPricing
+  currentLang,
+  onOpenBooking,
+  onExploreTreatments,
 }) => {
-  return (
-    <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24">
-      {/* Background Soft Gradients */}
-      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#E5ECE7]/60 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-[#EFECE2]/70 rounded-full blur-3xl pointer-events-none -z-10" />
+  const content = {
+    badge: {
+      ko: '한·일 전문의 협진 디지털 심미치과',
+      ja: '日韓専門医が協働するデジタル審美・矯正スタジオ',
+      en: 'Seoul & Tokyo Specialist Aesthetic Dental Studio',
+    },
+    title: {
+      ko: '자연스러움 속에 깃든 정밀함,\n미소를 예술로 완성합니다',
+      ja: '削らない審美と先端デジタルの調和。\nあなた本来の輝く笑顔をデザインします',
+      en: 'Where Clinical Precision Meets Artistry.\nCrafting Luminous Smiles That Last.',
+    },
+    subtitle: {
+      ko: '과잉진료 없는 0.1mm 무삭제·최소삭제 라미네이트부터 3D AI 투명교정, 원데이 네비게이션 임플란트까지. 서울대·도쿄의과치과대 출신 전문의가 투명한 수가와 10년 정품 보증으로 함께합니다.',
+      ja: '健康な天然歯を守る0.1mm極薄セラミックベニア、3D AIマウスピース矯正、即日ナビゲーションインプラント。ソウル大学・東京医科歯科大学出身の専門医チームが、明朗な費用と10年純正保証をお約束します。',
+      en: 'From 0.1mm non-prep Swiss porcelain veneers to AI clear aligners and computer-guided implants. Led by board-certified specialists from SNU and TMDU with transparent pricing and 10-year official warranties.',
+    },
+    primaryCta: {
+      ko: '실시간 진료 예약하기',
+      ja: 'WEB診療予約・無料相談',
+      en: 'Schedule Consultation',
+    },
+    secondaryCta: {
+      ko: '8대 치료 프로그램 보기',
+      ja: '診療メニューを見る',
+      en: 'Explore Treatments',
+    },
+    kpis: [
+      {
+        value: '15,000+',
+        label: { ko: '심미보철 및 라미네이트 증례', ja: '審美補綴・ベニア治療症例', en: 'Aesthetic Dental Cases' },
+      },
+      {
+        value: '0.1mm',
+        label: { ko: '최소삭제 자연 에나멜 보존', ja: '超極小切削 天然歯質保存', en: 'Minimal Enamel Removal' },
+      },
+      {
+        value: '10 Years',
+        label: { ko: '스위스 정품 보증서 발급', ja: 'スイス純正正規保証書発行', en: 'Authenticity Guarantee' },
+      },
+      {
+        value: 'KR & JP',
+        label: { ko: '한·일 이중 면허 전문의 협진', ja: '日韓専門医による完全母国語対応', en: 'Bilingual Specialist Care' },
+      },
+    ],
+  };
 
+  return (
+    <section className="relative bg-[#FAFAF8] overflow-hidden pt-10 pb-16 lg:pt-16 lg:pb-24 border-b border-[#E7E9E4]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Split Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left Column: Typography & CTAs */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            {/* Top Pill Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8EFEA] border border-[#C5D8CD] w-fit mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#1B5E50]"></span>
-              <span className="text-xs font-semibold tracking-wider text-[#0C2B24] uppercase">
-                {lang === 'ko' ? '보건복지부 인증 전문의 1:1 책임 진료' : '保健福祉部認証 専門医 1:1 責任診療'}
-              </span>
+          {/* Left Column: Editorial Copy */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Unboxed natural kicker */}
+            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#2D5A42]">
+              <Sparkles className="w-3.5 h-3.5 text-[#2D5A42]" />
+              <span>{content.badge[currentLang]}</span>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0C2B24] tracking-tight leading-[1.25] mb-5 font-serif-title">
-              {lang === 'ko' ? (
-                <>
-                  자연치아의 가치를<br className="hidden sm:inline" />
-                  <span className="text-[#15483D] underline decoration-[#C5A880]/60 decoration-wavy underline-offset-8">
-                    가장 먼저 생각하는
-                  </span> 바른 진료
-                </>
-              ) : (
-                <>
-                  天然歯の価値を<br className="hidden sm:inline" />
-                  <span className="text-[#15483D] underline decoration-[#C5A880]/60 decoration-wavy underline-offset-8">
-                    第一に考える
-                  </span> 誠実な歯科診療
-                </>
-              )}
+            {/* Hero Headline */}
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-[#142B20] leading-[1.2] whitespace-pre-line text-balance">
+              {content.title[currentLang]}
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-[#4A5551] leading-relaxed mb-8 max-w-2xl font-light">
-              {lang === 'ko' ? (
-                <>
-                  한 번 손상된 자연치아는 결코 되돌릴 수 없습니다.<br className="hidden sm:inline" />
-                  아베린 서울치과는 불필요한 과잉 발치를 지양하며, 3D 초정밀 디지털 분석과
-                  미세현미경 보존 치료로 환자분의 소중한 치아를 끝까지 지켜냅니다.
-                </>
-              ) : (
-                <>
-                  一度失われた天然歯は二度と元には戻りません。<br className="hidden sm:inline" />
-                  アベリンソウル歯科は安易な抜歯を避け、3Dデジタル精密分析と
-                  マイクロスコープ保存治療でご自身の歯を全力で守り抜きます。
-                </>
-              )}
+            {/* Description */}
+            <p className="text-base sm:text-lg text-[#475A4E] leading-relaxed max-w-2xl font-light">
+              {content.subtitle[currentLang]}
             </p>
 
-            {/* Core Values 3 Bullet Points */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-[#E5E0D5] px-3.5 py-2.5 rounded-xl shadow-xs">
-                <CheckCircle2 className="w-4 h-4 text-[#1B5E50] shrink-0" />
-                <span className="text-xs sm:text-[13px] font-medium text-[#25322F]">
-                  {lang === 'ko' ? '과잉진료 없는 정직한 진단' : '過剰診療のない誠実診断'}
+            {/* Key trust bullets */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs text-[#2D3E33]">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#2D5A42] shrink-0" />
+                <span>
+                  {currentLang === 'ja'
+                    ? '外国人患者 免税タックスリファンド対応'
+                    : currentLang === 'ko'
+                    ? '해외 방문 환자 사후 면세(Tax Refund 7~8%) 지원'
+                    : 'Global Tourist Tax Refund 7-8% Supported'}
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-[#E5E0D5] px-3.5 py-2.5 rounded-xl shadow-xs">
-                <CheckCircle2 className="w-4 h-4 text-[#1B5E50] shrink-0" />
-                <span className="text-xs sm:text-[13px] font-medium text-[#25322F]">
-                  {lang === 'ko' ? '1인 프라이빗 독립 진료실' : '全室完全個室プライベート'}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-[#E5E0D5] px-3.5 py-2.5 rounded-xl shadow-xs">
-                <CheckCircle2 className="w-4 h-4 text-[#1B5E50] shrink-0" />
-                <span className="text-xs sm:text-[13px] font-medium text-[#25322F]">
-                  {lang === 'ko' ? '투명한 비급여 수가 정찰제' : '自由診療料金の透明公開'}
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#2D5A42] shrink-0" />
+                <span>
+                  {currentLang === 'ja'
+                    ? '10年間 スイスIvoclar純正再製作保証'
+                    : currentLang === 'ko'
+                    ? '스위스 Ivoclar 정품 10년 품질 보증서'
+                    : 'Swiss Ivoclar 10-Year Warranty Card'}
                 </span>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+            {/* CTA Group */}
+            <div className="flex flex-wrap items-center gap-4 pt-4">
               <button
-                onClick={onOpenReservation}
-                className="bg-[#0C2B24] hover:bg-[#15483D] active:scale-[0.99] text-white px-7 py-3.5 rounded-xl font-medium text-[15px] flex items-center justify-center gap-2.5 shadow-md shadow-[#0C2B24]/15 transition cursor-pointer"
+                onClick={onOpenBooking}
+                className="inline-flex items-center gap-2 bg-[#142B20] hover:bg-[#1E3F2F] text-white px-6 py-3.5 rounded-lg text-sm font-medium tracking-wide transition-all shadow-md active:scale-[0.98] cursor-pointer"
               >
-                <Calendar className="w-4 h-4 text-[#D8C7B0]" />
-                <span>{lang === 'ko' ? '실시간 간편 진료 예약' : 'オンライン簡単予約'}</span>
+                <span>{content.primaryCta[currentLang]}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-
               <button
-                onClick={onOpenPricing}
-                className="bg-white hover:bg-[#F3EFE6] text-[#0C2B24] border border-[#D0CABE] px-6 py-3.5 rounded-xl font-medium text-[15px] flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+                onClick={onExploreTreatments}
+                className="inline-flex items-center gap-2 bg-white hover:bg-[#F3F5F1] text-[#142B20] border border-[#CCD4CD] px-6 py-3.5 rounded-lg text-sm font-medium tracking-wide transition-all active:scale-[0.98] cursor-pointer"
               >
-                <span>{lang === 'ko' ? '비급여 진료비 투명 확인' : '自由診療料金表を見る'}</span>
+                <span>{content.secondaryCta[currentLang]}</span>
               </button>
-            </div>
-
-            {/* Today's Schedule Quick Pill */}
-            <div className="mt-8 flex items-center gap-3 text-xs text-[#52605B]">
-              <Clock className="w-4 h-4 text-[#1B5E50]" />
-              <span>
-                {lang === 'ko'
-                  ? '오늘 진료: 평일 AM 09:30 - PM 18:30 (화·목 야간진료 20:30까지)'
-                  : '診療時間: 平日 09:30 - 18:30（火・木 夜間20:30まで）'}
-              </span>
             </div>
           </div>
 
-          {/* Right Column: Visual Showcase Card */}
+          {/* Right Column: Visual Anchor */}
           <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-              {/* Image Frame with Elegant Border */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/5] bg-stone-100">
-                <img
-                  src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=1200&auto=format&fit=crop"
-                  alt="Aveline Clinic Interior"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0C2B24]/80 via-transparent to-black/10" />
-
-                {/* Overlaid Badge Top */}
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#0C2B24] flex items-center gap-1.5 shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-[#C5A880]" />
-                  <span>{lang === 'ko' ? '디지털 덴탈 클리닉' : 'デジタルデンタルクリニック'}</span>
-                </div>
-
-                {/* Overlaid Bottom Card */}
-                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-[#EDE7DB]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border-2 border-[#1B5E50]">
-                      <img
-                        src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=300&auto=format&fit=crop"
-                        alt="Dr. Kim"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-[#0C2B24]">
-                          {lang === 'ko' ? CLINIC_INFO.directorName : 'キム・ドヒョン 代表院長'}
-                        </span>
-                        <span className="text-[10px] bg-[#E8EFEA] text-[#1B5E50] font-semibold px-1.5 py-0.5 rounded">
-                          {lang === 'ko' ? '구강악안면외과 전문의' : '口腔顎顔面外科 専門医'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-[#55635F] mt-0.5">
-                        {lang === 'ko'
-                          ? '“과잉진료 없이, 내 가족을 치료하는 마음으로 전 과정을 직접 돌봅니다.”'
-                          : '「過剰診療を排し、家族を診る真心で最後まで直接治療いたします。」'}
-                      </p>
-                    </div>
+            <div className="relative rounded-2xl overflow-hidden border border-[#D5DCD6] shadow-xl bg-[#EBEFEA] aspect-[4/3] lg:aspect-[5/4]">
+              <img
+                src={CLINIC_IMAGES.hero}
+                alt="DENTART Aesthetic Clinic Gangnam Studio Lounge"
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#142B20]/60 via-transparent to-transparent pointer-events-none" />
+              
+              {/* Overlay reassurance tag */}
+              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-4 border border-white/60 shadow-md">
+                <div className="flex items-center justify-between text-xs">
+                  <div>
+                    <p className="font-semibold text-[#142B20]">DENTART Gangnam Flagship</p>
+                    <p className="text-[#5F7166] text-[11px]">
+                      {currentLang === 'ja'
+                        ? '日本語専任コーディネーター常駐・完全予約制'
+                        : currentLang === 'ko'
+                        ? '1인 전용 프라이빗 룸 · 100% 사전 예약제'
+                        : 'Private Suite Rooms · English & Japanese Fluent'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[11px] font-mono text-[#2D5A42] font-semibold">1:1 Concierge</span>
                   </div>
                 </div>
               </div>
-
-              {/* Decorative Floating Floating Badge */}
-              <div className="hidden sm:flex absolute -bottom-5 -left-5 bg-[#0C2B24] text-white p-4 rounded-2xl shadow-xl flex-col gap-1 border border-[#1F5448]">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#C5A880]" />
-                  <span className="text-xs font-bold tracking-wide">
-                    {lang === 'ko' ? '감염 안심 멸균 시스템' : '感染予防 滅菌システム'}
-                  </span>
-                </div>
-                <p className="text-[11px] text-stone-300">
-                  {lang === 'ko' ? '1인 1기구 원칙 · B-Class 멸균' : '患者毎の個別滅菌パッキング'}
-                </p>
-              </div>
-
-              <div className="hidden sm:flex absolute -top-4 -right-4 bg-white p-3.5 rounded-2xl shadow-xl flex-col items-center justify-center border border-[#E8E3D7]">
-                <Award className="w-6 h-6 text-[#C5A880] mb-0.5" />
-                <span className="text-[11px] font-bold text-[#0C2B24]">
-                  {lang === 'ko' ? '정품 인증서 발급' : '純正保証書発行'}
-                </span>
-                <span className="text-[10px] text-stone-500">Osstem / Straumann</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* 4 Trust Metrics Bar */}
-        <div className="mt-14 pt-8 border-t border-[#E8E4D9]">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <div className="bg-white/70 p-4 rounded-2xl border border-[#EDE8DE] hover:border-[#1B5E50]/40 transition">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0C2B24] font-serif-title block">
-                0.05<span className="text-base text-[#1B5E50] font-sans font-bold">mm</span>
-              </span>
-              <p className="text-xs font-semibold text-[#2F3D39] mt-1">
-                {lang === 'ko' ? '3D 초정밀 디지털 분석' : '3Dデジタル超精密分析'}
-              </p>
-              <p className="text-[11px] text-[#6E7C77] mt-0.5">
-                {lang === 'ko' ? 'Green CT 및 iTero 5D' : 'Green CT・iTero 5Dスキャン'}
-              </p>
-            </div>
-
-            <div className="bg-white/70 p-4 rounded-2xl border border-[#EDE8DE] hover:border-[#1B5E50]/40 transition">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0C2B24] font-serif-title block">
-                100<span className="text-base text-[#1B5E50] font-sans font-bold">%</span>
-              </span>
-              <p className="text-xs font-semibold text-[#2F3D39] mt-1">
-                {lang === 'ko' ? '1인 프라이빗 독립 룸' : '完全個室 1人診療室'}
-              </p>
-              <p className="text-[11px] text-[#6E7C77] mt-0.5">
-                {lang === 'ko' ? '환자 프라이버시 완벽 보장' : 'プライバシー徹底配慮'}
-              </p>
-            </div>
-
-            <div className="bg-white/70 p-4 rounded-2xl border border-[#EDE8DE] hover:border-[#1B5E50]/40 transition">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0C2B24] font-serif-title block">
-                9<span className="text-base text-[#1B5E50] font-sans font-bold">단계</span>
-              </span>
-              <p className="text-xs font-semibold text-[#2F3D39] mt-1">
-                {lang === 'ko' ? '철저한 중앙 멸균 소독' : '徹底した9段階滅菌消毒'}
-              </p>
-              <p className="text-[11px] text-[#6E7C77] mt-0.5">
-                {lang === 'ko' ? '1인 1기구 원칙 및 플라즈마' : '個別パッキング・クラスB'}
-              </p>
-            </div>
-
-            <div className="bg-white/70 p-4 rounded-2xl border border-[#EDE8DE] hover:border-[#1B5E50]/40 transition">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#0C2B24] font-serif-title block">
-                1:1<span className="text-base text-[#1B5E50] font-sans font-bold">주치의</span>
-              </span>
-              <p className="text-xs font-semibold text-[#2F3D39] mt-1">
-                {lang === 'ko' ? '전문의 책임 전담 진료' : '専門医 責任担当制'}
-              </p>
-              <p className="text-[11px] text-[#6E7C77] mt-0.5">
-                {lang === 'ko' ? '치료 도중 의사 변경 없음' : '担当医の途中変更なし'}
-              </p>
             </div>
           </div>
         </div>
 
+        {/* Full-width KPI strip below the hero split */}
+        <div className="mt-16 pt-10 border-t border-[#E2E6E0] grid grid-cols-2 md:grid-cols-4 gap-8">
+          {content.kpis.map((kpi, idx) => (
+            <div key={idx} className="space-y-1">
+              <div className="font-display text-2xl sm:text-3xl font-semibold text-[#142B20] tracking-tight">
+                {kpi.value}
+              </div>
+              <p className="text-xs sm:text-sm text-[#596C60] font-light">
+                {kpi.label[currentLang]}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

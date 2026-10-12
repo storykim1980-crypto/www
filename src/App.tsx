@@ -1,174 +1,142 @@
 import React, { useState } from 'react';
-import { Language, ColumnArticle } from './types/dental';
+import { Language } from './data/clinicData';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { PhilosophySection } from './components/PhilosophySection';
+import { RecentWorkSliderSection } from './components/RecentWorkSliderSection';
+import { PopularTreatmentsListSection } from './components/PopularTreatmentsListSection';
 import { TreatmentsSection } from './components/TreatmentsSection';
-import { PricingSection } from './components/PricingSection';
 import { DoctorsSection } from './components/DoctorsSection';
-import { FacilitySection } from './components/FacilitySection';
-import { ReviewsSection } from './components/ReviewsSection';
-import { ColumnSection } from './components/ColumnSection';
-import { FaqSection } from './components/FaqSection';
-import { ReservationSection } from './components/ReservationSection';
-import { LocationSection } from './components/LocationSection';
+import { SocialProofAndProcessSection } from './components/SocialProofAndProcessSection';
+import { EquipmentSection } from './components/EquipmentSection';
+import { PricingWarrantySection } from './components/PricingWarrantySection';
+import { ConsultFormAndFaqSection } from './components/ConsultFormAndFaqSection';
 import { Footer } from './components/Footer';
-import { MobileBottomBar } from './components/MobileBottomBar';
-import {
-  ReservationSuccessModal,
-  ArticleModal,
-  KakaoConsultModal,
-  LegalModal
-} from './components/Modals';
+import { BookingModal } from './components/BookingModal';
 
 export default function App() {
-  const [lang, setLang] = useState<Language>('ko');
-  const [preselectedTreatment, setPreselectedTreatment] = useState<string>('');
+  const [currentLang, setCurrentLang] = useState<Language>('ko');
+  const [activeSection, setActiveSection] = useState<string>('hero');
   
-  // Modals state
-  const [bookingSuccessData, setBookingSuccessData] = useState<{
-    bookingNo: string;
-    treatment: string;
-    date: string;
-    time: string;
-    name: string;
-    phone: string;
-  } | null>(null);
+  // Interactive Booking Modal
+  const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
+  const [preselectedTreatment, setPreselectedTreatment] = useState<string | undefined>(undefined);
+  const [preselectedDoctor, setPreselectedDoctor] = useState<string | undefined>(undefined);
 
-  const [activeArticle, setActiveArticle] = useState<ColumnArticle | null>(null);
-  const [kakaoModalOpen, setKakaoModalOpen] = useState<boolean>(false);
-  const [legalModalType, setLegalModalType] = useState<'privacy' | 'pricing' | 'rights' | null>(null);
+  const handleOpenBooking = (treatmentId?: string, doctorId?: string) => {
+    setPreselectedTreatment(treatmentId);
+    setPreselectedDoctor(doctorId);
+    setIsBookingOpen(true);
+  };
 
-  // Scroll to reservation section smoothly
-  const scrollToReservation = () => {
-    const el = document.getElementById('reservation');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+  const handleNavigate = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else if (sectionId === 'hero') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const scrollToPricing = () => {
-    const el = document.getElementById('pricing');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleSelectTreatmentForReservation = (treatmentTitle: string) => {
-    setPreselectedTreatment(treatmentTitle);
-    scrollToReservation();
+  const handleOpenTreatmentModal = (treatmentId: string) => {
+    handleNavigate('treatments');
+    handleOpenBooking(treatmentId);
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-[#242424] flex flex-col font-sans">
-      {/* 1. Header / Navbar */}
+    <div className="min-h-screen flex flex-col bg-[#FAFAF8] text-[#1B2520] font-sans antialiased selection:bg-[#1B382B] selection:text-white">
+      {/* 1. Header Navigation Bar (Strict 3-zone contract) */}
       <Navbar
-        lang={lang}
-        onLanguageChange={setLang}
-        onOpenReservation={scrollToReservation}
-        onOpenKakao={() => setKakaoModalOpen(true)}
+        currentLang={currentLang}
+        onLanguageChange={setCurrentLang}
+        onOpenBooking={() => handleOpenBooking()}
+        activeSection={activeSection}
+        onNavigate={handleNavigate}
       />
 
-      {/* 2. Hero Section */}
-      <HeroSection
-        lang={lang}
-        onOpenReservation={scrollToReservation}
-        onOpenPricing={scrollToPricing}
-      />
+      <main className="flex-1">
+        {/* 2. Hero Section: Editorial typography & Gangnam Flagship visuals */}
+        <div id="hero">
+          <HeroSection
+            currentLang={currentLang}
+            onOpenBooking={() => handleOpenBooking()}
+            onExploreTreatments={() => handleNavigate('treatments')}
+          />
+        </div>
 
-      {/* 3. Philosophy & 4 Steps Process */}
-      <PhilosophySection lang={lang} />
+        {/* 3. Our Most Recent Work: Interactive Before & After comparison slider */}
+        <RecentWorkSliderSection
+          currentLang={currentLang}
+          onOpenBooking={handleOpenBooking}
+          onOpenTreatmentModal={handleOpenTreatmentModal}
+        />
 
-      {/* 4. Specialized Treatments */}
-      <TreatmentsSection
-        lang={lang}
-        onSelectTreatmentForReservation={handleSelectTreatmentForReservation}
-      />
+        {/* 4. Most Popular Treatments: Stacked interactive list with cost & duration */}
+        <PopularTreatmentsListSection
+          currentLang={currentLang}
+          onOpenBooking={handleOpenBooking}
+          onExploreAllTreatments={() => handleNavigate('treatments')}
+        />
 
-      {/* 5. Transparent Pricing Table */}
-      <PricingSection
-        lang={lang}
-        onOpenReservation={scrollToReservation}
-      />
+        {/* 5. Comprehensive Clinical Treatments: Full 8 CMS collection with 4 dimensions */}
+        <TreatmentsSection
+          currentLang={currentLang}
+          onSelectTreatmentForBooking={(treatmentId) => handleOpenBooking(treatmentId)}
+          onSelectDoctorProfile={(doctorId) => {
+            setPreselectedDoctor(doctorId);
+            handleNavigate('doctors');
+          }}
+        />
 
-      {/* 6. Medical Team / Doctors */}
-      <DoctorsSection lang={lang} />
+        {/* 6. Social Proof, Mission & 3-Step Process */}
+        <SocialProofAndProcessSection
+          currentLang={currentLang}
+          onOpenBooking={() => handleOpenBooking()}
+          onExploreTreatments={() => handleNavigate('treatments')}
+        />
 
-      {/* 7. Clinical Facility & Sterilization */}
-      <FacilitySection lang={lang} />
+        {/* 7. Our Specialists: Korean & Japanese Specialist Medical Team */}
+        <DoctorsSection
+          currentLang={currentLang}
+          onBookWithDoctor={(doctorId) => handleOpenBooking(undefined, doctorId)}
+          selectedDoctorId={preselectedDoctor}
+        />
 
-      {/* 8. Patient Reviews */}
-      <ReviewsSection lang={lang} />
+        {/* 8. Transparent Pricing & 10-Year Warranty */}
+        <PricingWarrantySection
+          currentLang={currentLang}
+          onOpenBooking={handleOpenBooking}
+        />
 
-      {/* 9. Dental Columns & Magazine */}
-      <ColumnSection
-        lang={lang}
-        onOpenArticle={(article) => setActiveArticle(article)}
-      />
+        {/* 9. Advanced Digital & Microscopic Equipment */}
+        <EquipmentSection
+          currentLang={currentLang}
+          onOpenBooking={() => handleOpenBooking()}
+        />
 
-      {/* 10. Frequently Asked Questions */}
-      <FaqSection
-        lang={lang}
-        onOpenKakao={() => setKakaoModalOpen(true)}
-      />
+        {/* 10. Direct Consultation Booking Form, FAQ Accordion & Blog Insights */}
+        <ConsultFormAndFaqSection
+          currentLang={currentLang}
+          onOpenBookingModal={handleOpenBooking}
+          onOpenTreatmentModal={handleOpenTreatmentModal}
+        />
+      </main>
 
-      {/* 11. Online Reservation System */}
-      <ReservationSection
-        lang={lang}
-        preselectedTreatment={preselectedTreatment}
-        onReservationComplete={(summary) => setBookingSuccessData(summary)}
-      />
-
-      {/* 12. Location & Hours */}
-      <LocationSection lang={lang} />
-
-      {/* 13. Footer */}
+      {/* 11. Dark Spruce Green Editorial Footer */}
       <Footer
-        lang={lang}
-        onOpenPrivacy={() => setLegalModalType('privacy')}
-        onOpenPricingDoc={() => setLegalModalType('pricing')}
-        onOpenPatientRights={() => setLegalModalType('rights')}
+        currentLang={currentLang}
+        onNavigate={handleNavigate}
+        onOpenBooking={() => handleOpenBooking()}
       />
 
-      {/* 14. Mobile Floating Bottom Bar */}
-      <MobileBottomBar
-        lang={lang}
-        onOpenReservation={scrollToReservation}
-        onOpenKakao={() => setKakaoModalOpen(true)}
+      {/* 12. Full-Featured Interactive Booking Engine Modal */}
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={() => setIsBookingOpen(false)}
+        currentLang={currentLang}
+        initialTreatmentId={preselectedTreatment}
+        initialDoctorId={preselectedDoctor}
       />
-
-      {/* Modals */}
-      {bookingSuccessData && (
-        <ReservationSuccessModal
-          lang={lang}
-          data={bookingSuccessData}
-          onClose={() => setBookingSuccessData(null)}
-        />
-      )}
-
-      {activeArticle && (
-        <ArticleModal
-          lang={lang}
-          article={activeArticle}
-          onClose={() => setActiveArticle(null)}
-        />
-      )}
-
-      {kakaoModalOpen && (
-        <KakaoConsultModal
-          lang={lang}
-          onClose={() => setKakaoModalOpen(false)}
-          onOpenReservation={scrollToReservation}
-        />
-      )}
-
-      {legalModalType && (
-        <LegalModal
-          lang={lang}
-          type={legalModalType}
-          onClose={() => setLegalModalType(null)}
-        />
-      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 {
-  "name": "아베린 서울치과의원 | Aveline Dental Clinic",
-  "description": "한국인 정서에 맞춘 자연치아 보존 중심, 1:1 맞춤 진료 및 투명한 비급여 수가제를 실천하는 프리미엄 치과의원 웹사이트",
+  "name": "DENTART Aesthetic & Orthodontic Dental Studio",
+  "description": "Premier aesthetic, orthodontic, and restorative dental studio serving Korean and Japanese patients with digital precision, transparent pricing, and bespoke care.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

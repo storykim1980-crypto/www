@@ -20,9 +20,3 @@ export default defineConfig(() => {
     },
   };
 });
-
-export default defineConfig(() => {
-  return {
-    base: './', // GitHub Pages의 서브 경로(/www/)에서도 파일 경로가 깨지지 않도록 상대 경로 적용
-    plugins: [react(), tailwindcss()],
-    // ...
