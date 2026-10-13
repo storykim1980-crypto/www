@@ -1,3 +1,5 @@
+import { IMAGES } from '../assets/images';
+
 export type Language = 'ko' | 'ja' | 'en';
 
 export interface TreatmentItem {
@@ -89,13 +91,13 @@ export interface ReviewItem {
 }
 
 export const CLINIC_IMAGES = {
-  hero: '/src/assets/images/hero_dentart_clinic_1791846640841.jpg',
-  drPark: '/src/assets/images/doctor_korean_prostho_1791846641559.jpg',
-  drSato: '/src/assets/images/doctor_japanese_ortho_1791846642772.jpg',
-  drKim: '/src/assets/images/doctor_korean_surgeon_1791846643039.jpg',
-  treatmentSuite: '/src/assets/images/treatment_suite_modern_1791846642395.jpg',
-  patientSmile: '/src/assets/images/patient_smiling_natural_1791847230807.jpg',
-  team: '/src/assets/images/clinic_team_doctors_1791847233256.jpg',
+  hero: IMAGES.heroDentartClinic,
+  drPark: IMAGES.doctorKoreanProstho,
+  drSato: IMAGES.doctorJapaneseOrtho,
+  drKim: IMAGES.doctorKoreanSurgeon,
+  treatmentSuite: IMAGES.treatmentSuiteModern,
+  patientSmile: IMAGES.patientSmilingNatural,
+  team: IMAGES.clinicTeamDoctors,
 };
 
 export const DOCTORS: DoctorItem[] = [
@@ -825,8 +827,8 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ja: '麻酔なし・天然歯の切削量ゼロで0.15mmの超極薄ベニアを精密接着し、自然な透明感とゴールデンプロポーションを復元',
       en: 'Zero tooth preparation with 0.15mm bespoke hand-layered ceramics restoring golden facial proportions',
     },
-    beforeImage: '/src/assets/images/hero_dentart_clinic_1791846640841.jpg',
-    afterImage: '/src/assets/images/treatment_suite_modern_1791846642395.jpg',
+    beforeImage: IMAGES.heroDentartClinic,
+    afterImage: IMAGES.treatmentSuiteModern,
     beforeNotes: { ko: '벌어진 치아 틈새, 칙칙한 황색조 쉐이드', ja: '前歯の隙間、全体的な黄ばみ', en: 'Prominent gaps, dull uneven shading' },
     afterNotes: { ko: '자연스러운 에나멜 광택, 고른 스마일 아치 완성', ja: '透明感あふれる輝き、自然な美しいスマイルライン', en: 'Natural translucent luster, perfectly balanced smile arch' },
   },
@@ -852,8 +854,8 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ja: '抜歯を行わず、歯列弓の緩やかな拡大と微細IPRにより全歯を保存しながら綺麗なアーチを確立',
       en: 'Expanded dental arch gracefully without premolar extraction, preserving lifelong tooth integrity',
     },
-    beforeImage: '/src/assets/images/doctor_korean_prostho_1791846641559.jpg',
-    afterImage: '/src/assets/images/doctor_japanese_ortho_1791846642772.jpg',
+    beforeImage: IMAGES.doctorKoreanProstho,
+    afterImage: IMAGES.doctorJapaneseOrtho,
     beforeNotes: { ko: '상하악 총생, 어긋난 치열선', ja: '前歯部の重なり、噛み合わせのズレ', en: 'Severe anterior overlap and irregular midline' },
     afterNotes: { ko: '가지런한 아치, 정중선 일치 및 턱관절 편안함', ja: '美しいU字アーチ、正中線の一致と自然な口元', en: 'Uniform dental arch with centered midline' },
   },
@@ -879,8 +881,8 @@ export const CLINICAL_CASES: ClinicalCase[] = [
       ja: '抜歯即時に3Dサージカルガイドを用い無切開埋入を実施。当日に仮歯を装着し腫れゼロで翌日帰国',
       en: 'Immediate extraction and flapless guide placement; provisional crown delivered same day with zero suture',
     },
-    beforeImage: '/src/assets/images/doctor_korean_surgeon_1791846643039.jpg',
-    afterImage: '/src/assets/images/treatment_suite_modern_1791846642395.jpg',
+    beforeImage: IMAGES.doctorKoreanSurgeon,
+    afterImage: IMAGES.treatmentSuiteModern,
     beforeNotes: { ko: '치아 결손, 잇몸 염증 및 뼈 흡수 진행', ja: '歯の欠損、歯茎の腫れと骨吸収', en: 'Missing tooth space and localized bone resorption' },
     afterNotes: { ko: '단단한 저작력 회복, 자연치아와 똑같은 지르코니아', ja: '力強い咀嚼力回復、天然歯と区別のつかない美しさ', en: 'Firm biting stability with natural zirconia translucency' },
   },

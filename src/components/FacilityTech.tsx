@@ -1,3 +1,4 @@
+import { IMAGES } from '../assets/images';
 import React from 'react';
 import { Scan, ShieldCheck, Cpu, Microscope, Sparkles } from 'lucide-react';
 
@@ -60,7 +61,7 @@ export const FacilityTech: React.FC = () => {
           <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col">
             <div className="aspect-[16/10] overflow-hidden relative">
               <img
-                src="/src/assets/images/clinic_equipment_tech_1791799051548.jpg"
+                src={IMAGES.clinicEquipmentTech}
                 alt="김치과의원 3D 디지털 구강 스캐너 및 정밀 진단 시스템"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
@@ -82,7 +83,7 @@ export const FacilityTech: React.FC = () => {
           <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col">
             <div className="aspect-[16/10] overflow-hidden relative">
               <img
-                src="/src/assets/images/clinic_lounge_interior_1791799068516.jpg"
+                src={IMAGES.clinicLoungeInterior}
                 alt="김치과의원 호텔식 대기 라운지 및 로비"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"

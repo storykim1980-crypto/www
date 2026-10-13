@@ -1,3 +1,4 @@
+import { IMAGES } from '../assets/images';
 import React from 'react';
 import { Calendar, PhoneCall, ShieldCheck, Sparkles, ChevronRight } from 'lucide-react';
 import { CLINIC_INFO } from '../data/dentalData';
@@ -80,7 +81,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onScrollToDiagnosis }
           <div className="lg:col-span-5 relative">
             <div className="h-full min-h-[340px] sm:min-h-[420px] rounded-2xl overflow-hidden shadow-md border border-slate-200/80 bg-slate-100 relative group">
               <img
-                src="/src/assets/images/hero_dental_clinic_1791799016435.jpg"
+                src={IMAGES.heroDentalClinic}
                 alt="김치과의원 첨단 디지털 진료실 전경"
                 className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500"
                 referrerPolicy="no-referrer"
