@@ -1,7 +1,0 @@
-src/components/Treatments.tsx
-src/components/TreatmentDetailModal.tsx
-src/components/DentalGuide.tsx
-src/components/DoctorIntro.tsx
-src/components/LocationInfo.tsx
-src/components/NonCoveredPricesModal.tsx
-src/components/Reviews.tsx
