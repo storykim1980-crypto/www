@@ -1,6 +1,0 @@
-{
-  "name": "DENTART Aesthetic & Orthodontic Dental Studio",
-  "description": "Premier aesthetic, orthodontic, and restorative dental studio serving Korean and Japanese patients with digital precision, transparent pricing, and bespoke care.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
